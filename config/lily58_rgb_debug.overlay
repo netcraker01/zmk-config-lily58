@@ -1,0 +1,50 @@
+#include <dt-bindings/led/led.h>
+
+&pinctrl {
+    /* Test different pins for WS2812 data line */
+    /* Try P0.08 if P0.06 doesn't work */
+    spi1_default: spi1_default {
+        group1 {
+            /* Change this number to test different pins:
+               P0.00 = 0, P0.01 = 1, ..., P0.31 = 31,
+               P1.00 = 32, P1.01 = 33, etc.
+               P0.06 = 6 (default for Lily58 per PandaKB guide)
+               P0.08 = 8
+               P0.17 = 17
+               P0.20 = 20
+            */
+            psels = <NRF_PSEL(SPIM_MOSI, 0, 6)>; /* <-- CHANGE THIS NUMBER */
+        };
+    };
+
+    spi1_sleep: spi1_sleep {
+        group1 {
+            psels = <NRF_PSEL(SPIM_MOSI, 0, 6)>; /* <-- CHANGE THIS NUMBER TOO */
+            low-power-enable;
+        };
+    };
+};
+
+&spi1 {
+    compatible = "nordic,nrf-spim";
+    status = "okay";
+    pinctrl-0 = <&spi1_default>;
+    pinctrl-1 = <&spi1_sleep>;
+    pinctrl-names = "default", "sleep";
+
+    led_strip: ws2812@0 {
+        compatible = "worldsemi,ws2812-spi";
+        reg = <0>;
+        spi-max-frequency = <4000000>;
+        chain-length = <6>;
+        spi-one-frame = <0x70>;
+        spi-zero-frame = <0x40>;
+        color-mapping = <LED_COLOR_ID_GREEN LED_COLOR_ID_RED LED_COLOR_ID_BLUE>;
+    };
+};
+
+/ {
+    chosen {
+        zmk,underglow = &led_strip;
+    };
+};
