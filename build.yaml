@@ -1,7 +1,9 @@
 include:
   - board: nice_nano_v2
     shield: lily58_left
+    overlay: lily58_rgb
   - board: nice_nano_v2
     shield: lily58_right
+    overlay: lily58_rgb
   - board: nice_nano_v2
     shield: settings_reset
