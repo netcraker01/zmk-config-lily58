@@ -2,15 +2,10 @@ manifest:
   remotes:
     - name: zmkfirmware
       url-base: https://github.com/zmkfirmware
-    - name: pandakblab
-      url-base: https://github.com/PandaKBLab
   projects:
     - name: zmk
       remote: zmkfirmware
       revision: main
       import: app/west.yml
-    - name: zmk-for-keyboards
-      remote: pandakblab
-      revision: zmk-for-lily
   self:
     path: config
