@@ -1,7 +1,9 @@
 include:
   - board: nice_nano_v2
     shield: lily58_left
+    cmake-args: -DBOARD_ROOT="${GITHUB_WORKSPACE}"
   - board: nice_nano_v2
     shield: lily58_right
+    cmake-args: -DBOARD_ROOT="${GITHUB_WORKSPACE}"
   - board: nice_nano_v2
     shield: settings_reset
