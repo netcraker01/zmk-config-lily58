@@ -1,9 +1,9 @@
 include:
   - board: nice_nano_v2
     shield: lily58_left
-    overlay: boards/shields/lily58/boards/nice_nano_v2_p017
+    overlay: boards/shields/lily58/boards/nice_nano_v2_p020
   - board: nice_nano_v2
     shield: lily58_right
-    overlay: boards/shields/lily58/boards/nice_nano_v2_p017
+    overlay: boards/shields/lily58/boards/nice_nano_v2_p020
   - board: nice_nano_v2
     shield: settings_reset
