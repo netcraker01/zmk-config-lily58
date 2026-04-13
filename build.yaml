@@ -1,9 +1,9 @@
 include:
   - board: nice_nano_v2
-    shield: lily58_left
-    artifact-name: lily58_left
+    shield: Lily58_L
+    artifact-name: Lily58_left
   - board: nice_nano_v2
-    shield: lily58_right
-    artifact-name: lily58_right
+    shield: Lily58_R
+    artifact-name: Lily58_right
   - board: nice_nano_v2
     shield: settings_reset
