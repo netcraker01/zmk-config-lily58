@@ -2,6 +2,8 @@ manifest:
   remotes:
     - name: zmkfirmware
       url-base: https://github.com/zmkfirmware
+    - name: mctechnology17
+      url-base: https://github.com/mctechnology17
     - name: penguinchat
       url-base: https://github.com/penguinchat
   projects:
@@ -9,6 +11,9 @@ manifest:
       remote: zmkfirmware
       revision: v0.3
       import: app/west.yml
+    - name: zmk-nice-oled
+      remote: mctechnology17
+      revision: main
     - name: zmk-for-PandaKB.com-
       remote: penguinchat
       revision: PandaKB_Lily58
