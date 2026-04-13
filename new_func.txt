@@ -1,0 +1,69 @@
+func (m Model) viewConnectedWithComponents() string {
+	width := 80
+	height := 24
+	if m.layout.Width > 40 && m.layout.Width < 200 {
+		width = m.layout.Width
+	}
+	if m.layout.Height > 10 && m.layout.Height < 50 {
+		height = m.layout.Height
+	}
+	
+	topBar := " WhatsTUI by NeTCRaKeR 2026 "
+	for len(topBar) < width {
+		topBar = topBar + " "
+	}
+	topBar2 := strings.Repeat(" ", width)
+	topBar = topBar + "\n" + topBar2
+	
+	mainH := height - 3
+	if mainH < 10 {
+		mainH = 10
+	}
+	
+	sidebarW := 32
+	m.chatList.SetSize(sidebarW, mainH-1)
+	listView := m.chatList.View()
+	
+	sidebarContent := "CHATS\n" + listView
+	sideLines := strings.Split(sidebarContent, "\n")
+	
+	for len(sideLines) < mainH {
+		sideLines = append(sideLines, strings.Repeat(" ", sidebarW))
+	}
+	if len(sideLines) > mainH {
+		sideLines = sideLines[:mainH]
+	}
+	
+	chatW := width - sidebarW - 1
+	var chatLines []string
+	chatLines = append(chatLines, " MENSAJES ")
+	for i := 2; i < mainH; i++ {
+		chatLines = append(chatLines, strings.Repeat(" ", chatW))
+	}
+	if len(chatLines) > mainH {
+		chatLines = chatLines[:mainH]
+	}
+	
+	var rows []string
+	for i := 0; i < mainH; i++ {
+		sideLine := ""
+		if i < len(sideLines) {
+			sideLine = sideLines[i]
+		}
+		sideLine = sideLine + "|"
+		
+		chatLine := ""
+		if i < len(chatLines) {
+			chatLine = chatLines[i]
+		}
+		
+		rows = append(rows, sideLine+chatLine)
+	}
+	
+	bottomBar := " Esc:back  j/k:nav  Enter:open  Ctrl+W:search "
+	for len(bottomBar) < width {
+		bottomBar = bottomBar + " "
+	}
+	
+	return topBar + "\n" + strings.Join(rows, "\n") + "\n" + bottomBar
+}
