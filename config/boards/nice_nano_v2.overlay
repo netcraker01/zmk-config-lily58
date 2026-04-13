@@ -1,6 +1,5 @@
 /*
- * OLED configuration overlay for Lily58
- * Try both 128x32 and 128x64 configurations
+ * OLED configuration for 0.91" SSD1306 (128x32)
  */
 
 &pro_micro_i2c {
@@ -10,11 +9,11 @@
         compatible = "solomon,ssd1306fb";
         reg = <0x3c>;
         width = <128>;
-        height = <64>;
+        height = <32>;
         segment-offset = <0>;
         page-offset = <0>;
         display-offset = <0>;
-        multiplex-ratio = <63>;
+        multiplex-ratio = <31>;
         segment-remap;
         com-invdir;
         com-sequential;
