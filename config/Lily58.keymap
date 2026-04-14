@@ -1,7 +1,28 @@
 /*
- * Copyright (c) 2020 The ZMK Contributors
+ * Lily58 Optimized Layout - Spanish + Programming
+ * 
+ * Layers:
+ * 0 - BASE: QWERTY con homerow mods (A=GUI, S=ALT, D=CTRL, F=SHIFT)
+ * 1 - NAV:  Navegación, flechas, multimedia
+ * 2 - SYM:  Símbolos, números
+ * 3 - ADJUST: RGB, Bluetooth, sistema, capturas (tri-layer automático)
  *
- * SPDX-License-Identifier: MIT
+ * Combos:
+ * - Q+W = ESC
+ * - J+K = TAB
+ * - K+L = ENTER
+ * - U+I = BSPC
+ * - O+P = DEL
+ * - M+COMMA = Ñ
+ *
+ * Homerow mods (hold = modifier, tap = key):
+ * - A = GUI (Win/Cmd) - mantiene Win para shortcuts
+ * - S = ALT
+ * - D = CTRL
+ * - F = SHIFT
+ *
+ * Capturas de pantalla en ADJUST:
+ * - PRTSC = Captura pantalla completa
  */
 
 #include <behaviors.dtsi>
@@ -11,11 +32,128 @@
 #include <dt-bindings/zmk/rgb.h>
 
 / {
-    // Activate ADJUST layer by pressing raise and lower
+    // Behavior definitions
+    behaviors {
+        // Homerow mods con configuración óptima
+        hm: homerow_mods {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            tapping-term-ms = <280>;
+            quick-tap-ms = <175>;
+            flavor = "balanced";
+            require-prior-idle-ms = <150>;
+            hold-trigger-on-release;
+            bindings = <&kp>, <&kp>;
+        };
 
+        // Macro: Win+Shift+S (Captura de pantalla Windows)
+        screen_cap: screen_capture {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&kp LGUI &kp LSHFT &kp S>;
+            wait-ms = <5>;
+            tap-ms = <5>;
+        };
+
+        // Macro: Alt+Tab (Cambio de aplicaciones)
+        alt_tab: alt_tab {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&kp LALT &kp TAB>;
+            wait-ms = <5>;
+            tap-ms = <5>;
+        };
+
+        // Macro: Ctrl+Shift+Tab (Pestaña anterior)
+        prev_tab: prev_tab {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&kp LCTRL &kp LSHFT &kp TAB>;
+            wait-ms = <5>;
+            tap-ms = <5>;
+        };
+
+        // Macro: Ctrl+Tab (Pestaña siguiente)
+        next_tab: next_tab {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&kp LCTRL &kp TAB>;
+            wait-ms = <5>;
+            tap-ms = <5>;
+        };
+    };
+
+    // Combos - pulsar dos teclas simultáneamente
+    combos {
+        compatible = "zmk,combos";
+
+        // Q+W = ESC (izquierda)
+        esc_combo {
+            bindings = <&kp ESC>;
+            key-positions = <1 2>;
+            layers = <0>;
+            timeout-ms = <40>;
+            require-prior-idle-ms = <150>;
+        };
+
+        // O+P = DEL (derecha, fila superior)
+        del_combo {
+            bindings = <&kp DEL>;
+            key-positions = <13 14>;
+            layers = <0>;
+            timeout-ms = <40>;
+            require-prior-idle-ms = <150>;
+        };
+
+        // J+K = TAB (derecha, homerow)
+        tab_combo {
+            bindings = <&kp TAB>;
+            key-positions = <15 16>;
+            layers = <0>;
+            timeout-ms = <40>;
+            require-prior-idle-ms = <150>;
+        };
+
+        // K+L = ENTER (derecha, homerow)
+        enter_combo {
+            bindings = <&kp RET>;
+            key-positions = <16 17>;
+            layers = <0>;
+            timeout-ms = <40>;
+            require-prior-idle-ms = <150>;
+        };
+
+        // U+I = BSPC (derecha, fila superior)
+        bspc_combo {
+            bindings = <&kp BSPC>;
+            key-positions = <14 15>;
+            layers = <0>;
+            timeout-ms = <40>;
+            require-prior-idle-ms = <150>;
+        };
+
+        // M+COMMA = ; (posición de Ñ en español)
+        enye_combo {
+            bindings = <&kp SEMI>;
+            key-positions = <20 21>;
+            layers = <0>;
+            timeout-ms = <40>;
+            require-prior-idle-ms = <150>;
+        };
+
+        // V+B = CAPS LOCK (izquierda)
+        caps_combo {
+            bindings = <&kp CAPS>;
+            key-positions = <19 5>;
+            layers = <0>;
+            timeout-ms = <40>;
+            require-prior-idle-ms = <150>;
+        };
+    };
+
+    // Tri-layer: NAV+SYM activa ADJUST automáticamente
     conditional_layers {
         compatible = "zmk,conditional-layers";
-
         adjust_layer {
             if-layers = <1 2>;
             then-layer = <3>;
@@ -25,71 +163,96 @@
     keymap {
         compatible = "zmk,keymap";
 
+        // ═════════════════════════════════════════════════════════════════════════════════
+        // LAYER 0: BASE - QWERTY con Homerow Mods
+        // ═════════════════════════════════════════════════════════════════════════════════
+        // Homerow mods: A=GUI, S=ALT, D=CTRL, F=SHIFT (cuando se mantienen)
+        // 
+        //            ESC      1       2       3       4       5                         6       7       8       9       0       BSPC
+        //            TAB      Q       W       E       R       T                         Y       U       I       O       P       ´
+        //            CAPS     A(GUI)  S(ALT)  D(CTL)  F(SHT)  G                         H       J       K       L       Ñ       ¡
+        //            SHFT     Z       X       C       V       B    MUTE      PLAY       N       M       ,       .       -       SHFT
+        //                             ALT     GUI     NAV     SPACE   ENT       SYM      BSPC     GUI
+        
         default_layer {
-            // ------------------------------------------------------------------------------------------------------------
-            // |  ESC  |  1  |  2  |  3   |  4   |  5   |                   |  6   |  7    |  8    |  9   |   0   |   `   |
-            // |  TAB  |  Q  |  W  |  E   |  R   |  T   |                   |  Y   |  U    |  I    |  O   |   P   |   -   |
-            // |  CTRL |  A  |  S  |  D   |  F   |  G   |                   |  H   |  J    |  K    |  L   |   ;   |   '   |
-            // | SHIFT |  Z  |  X  |  C   |  V   |  B   |  MUTE  |  |RGB_TOG|  N   |  M    |  ,    |  .   |   /   | SHIFT |
-            //                     | ALT  | GUI  | LOWER|  SPACE |  | ENTER | RAISE| BSPC  | GUI   |
-
             bindings = <
-&kp ESC    &kp N1  &kp N2  &kp N3    &kp N4    &kp N5                                 &kp N6  &kp N7    &kp N8     &kp N9   &kp N0    &kp GRAVE
-&kp TAB    &kp Q   &kp W   &kp E     &kp R     &kp T                                  &kp Y   &kp U     &kp I      &kp O    &kp P     &kp MINUS
-&kp LCTRL  &kp A   &kp S   &kp D     &kp F     &kp G                                  &kp H   &kp J     &kp K      &kp L    &kp SEMI  &kp SQT
-&kp LSHFT  &kp Z   &kp X   &kp C     &kp V     &kp B   &kp C_MUTE    &rgb_ug RGB_TOG  &kp N   &kp M     &kp COMMA  &kp DOT  &kp FSLH  &kp RSHFT
-                           &kp LALT  &kp LGUI  &mo 1   &kp SPACE     &kp RET          &mo 2   &kp BSPC  &kp RGUI
-            >;
-
-            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN>;
-        };
-
-        lower_layer {
-            // ------------------------------------------------------------------------------------------------------------
-            // | BTCLR | BT1 | BT2 |  BT3 |  BT4 |  BT5 |                   |      |       |       |      |       |       |
-            // |  F1   |  F2 |  F3 |  F4  |  F5  |  F6  |                   |  F7  |  F8   |  F9   |  F10 |  F11  |  F12  |
-            // |   `   |  !  |  @  |  #   |  $   |  %   |                   |  ^   |  &    |  *    |  (   |   )   |   ~   |
-            // |EXTPWR |     |     |      |      |      |        |  |       |      |  _    |  +    |  {   |   }   |  "|"  |
-            //                     |      |      |      |        |  |       |      |       |       |
-
-            bindings = <
-&bt BT_CLR  &bt BT_SEL 0      &bt BT_SEL 1       &bt BT_SEL 2       &bt BT_SEL 3  &bt BT_SEL 4                    &trans     &trans     &trans     &trans    &trans    &trans
-&kp F1      &kp F2            &kp F3             &kp F4             &kp F5        &kp F6                          &kp F7     &kp F8     &kp F9     &kp F10   &kp F11   &kp F12
-&kp GRAVE   &kp EXCL          &kp AT             &kp HASH           &kp DOLLAR    &kp PRCNT                       &kp CARET  &kp AMPS   &kp ASTRK  &kp LPAR  &kp RPAR  &kp TILDE
-&trans      &ext_power EP_ON  &ext_power EP_OFF  &ext_power EP_TOG  &trans        &trans        &trans    &trans  &trans     &kp MINUS  &kp PLUS   &kp LBRC  &kp RBRC  &kp PIPE
-                                                 &trans             &trans        &trans        &trans    &trans  &trans     &trans     &trans
-            >;
-
-            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN>;
-        };
-
-        adjust_layer {
-            // ----------------------------------------------------------------------------------------------------------------------------
-            // | BTCLR  |  BT1    |  BT2    |   BT3   |   BT4   |   BT5   |                  |      |      |       |      |       |       |
-            // | EXTPWR | RGB_HUD | RGB_HUI | RGB_SAD | RGB_SAI | RGB_EFF |                  |      |      |       |      |       |       |
-            // |        | RGB_BRD | RGB_BRI |         |         |         |                  |      |      |       |      |       |       |
-            // |        |         |         |         |         |         | RGB_TOG | |      |      |      |       |      |       |       |
-            //                    |         |         |         |         |         | |      |      |      |       |      |
-
-            bindings = <
-&bt BT_CLR         &bt BT_SEL 0     &bt BT_SEL 1     &bt BT_SEL 2     &bt BT_SEL 3     &bt BT_SEL 4                       &trans  &trans  &trans  &trans  &trans  &trans
-&ext_power EP_TOG  &rgb_ug RGB_HUD  &rgb_ug RGB_HUI  &rgb_ug RGB_SAD  &rgb_ug RGB_SAI  &rgb_ug RGB_EFF                    &trans  &trans  &trans  &trans  &trans  &trans
-&trans             &rgb_ug RGB_BRD  &rgb_ug RGB_BRI  &trans           &trans           &trans                             &trans  &trans  &trans  &trans  &trans  &trans
-&trans             &trans           &trans           &trans           &trans           &trans           &trans    &trans  &trans  &trans  &trans  &trans  &trans  &trans
-                                                     &trans           &trans           &trans           &trans    &trans  &trans  &trans  &trans
+    &kp ESC     &kp N1     &kp N2     &kp N3     &kp N4     &kp N5                          &kp N6     &kp N7     &kp N8     &kp N9     &kp N0     &kp BSPC
+    &kp TAB     &kp Q      &kp W      &kp E      &kp R      &kp T                           &kp Y      &kp U      &kp I      &kp O      &kp P      &kp GRAVE
+    &kp CAPS    &hm LGUI A &hm LALT S &hm LCTRL D &hm LSHFT F &kp G                          &kp H      &kp J      &kp K      &kp L      &kp SEMI   &kp RA
+    &kp LSHFT   &kp Z      &kp X      &kp C      &kp V      &kp B      &kp C_MUTE   &kp PLAY      &kp N      &kp M      &kp COMMA  &kp DOT    &kp SLASH  &kp RSHFT
+                          &kp LALT    &kp LGUI   &mo 1      &kp SPACE   &kp RET          &mo 2      &kp BSPC   &kp RGUI
             >;
 
             sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN>;
         };
 
-        extra1 { status = "reserved"; };
+        // ═════════════════════════════════════════════════════════════════════════════════
+        // LAYER 1: NAV - Navegación y Multimedia
+        // ═════════════════════════════════════════════════════════════════════════════════
+        // Flechas en HJKL, Home/End, multimedia, cambio de apps
+        // 
+        //            F1      F2      F3      F4      F5      F6                         F7      F8      F9      F10     F11     F12
+        //            TAB    HOME     UP     END    PGUP   MUTE                       PLAY    HOME     UP     END    PGUP   PRSC
+        //            CAPS   LEFT    DOWN   RIGHT   PGDN  CAPS                        CAPS   LEFT    DOWN   RIGHT   PGDN    INS
+        //            SHFT    ~       /       \       |      `     PREV    NEXT        SHFT    [       ]       {       }       SHFT
+        //                             ALT     GUI     NAV     SPACE   ENT         NAV     BSPC     GUI
+        
+        nav_layer {
+            bindings = <
+    &kp F1     &kp F2     &kp F3     &kp F4     &kp F5     &kp F6                          &kp F7     &kp F8     &kp F9     &kp F10    &kp F11    &kp F12
+    &kp TAB    &kp HOME   &kp UP     &kp END    &kp PG_UP  &kp C_MUTE                      &kp PLAY   &kp HOME   &kp UP     &kp END    &kp PG_UP  &kp PSCRN
+    &kp CAPS   &kp LEFT   &kp DOWN   &kp RIGHT  &kp PG_DN  &kp CAPS                        &kp CAPS   &kp LEFT   &kp DOWN   &kp RIGHT  &kp PG_DN  &kp INS
+    &kp LSHFT  &kp GRAVE  &kp SLASH  &kp BSLH   &kp PIPE   &kp TILDE   &kp C_PREV   &kp C_NEXT  &kp LSHFT  &kp LBKT   &kp RBKT   &kp LBRC   &kp RBRC   &kp RSHFT
+                          &kp LALT   &kp LGUI   &trans     &kp SPACE   &kp RET          &trans     &kp BSPC   &kp RGUI
+            >;
 
-        extra2 { status = "reserved"; };
+            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN>;
+        };
 
-        extra3 { status = "reserved"; };
+        // ═════════════════════════════════════════════════════════════════════════════════
+        // LAYER 2: SYM - Símbolos y Números
+        // ═════════════════════════════════════════════════════════════════════════════════
+        // Números en homerow derecho, símbolos alrededor
+        // 
+        //             `       !       @       #       $       %                          ^       &       *       (       )       BSPC
+        //            TAB     1       2       3       4       5                          6       7       8       9       0         |
+        //            SQT     !       @       #       $       %                          ~       -       =       [       ]         \
+        //            SHFT    <       >       :       /       _    CAPS     CAPS        SHFT    ;       '       "       ,       SHFT
+        //                             ALT     GUI     NAV     SPACE   ENT         SYM     BSPC     GUI
+        
+        sym_layer {
+            bindings = <
+    &kp GRAVE  &kp EXCL   &kp AT     &kp HASH   &kp DLLR   &kp PRCNT                        &kp CARET  &kp AMPS   &kp ASTRK  &kp LPAR   &kp RPAR   &kp BSPC
+    &kp TAB    &kp N1     &kp N2     &kp N3     &kp N4     &kp N5                           &kp N6     &kp N7     &kp N8     &kp N9     &kp N0     &kp PIPE
+    &kp SQT    &kp EXCL   &kp AT     &kp HASH   &kp DLLR   &kp PRCNT                        &kp TILDE  &kp MINUS  &kp EQUAL  &kp LBKT   &kp RBKT   &kp BSLH
+    &kp LSHFT  &kp LT     &kp GT     &kp COLN   &kp FSLH   &kp UNDERSC   &kp CAPS   &kp CAPS      &kp LSHFT  &kp SEMI   &kp QUOT   &kp DQT    &kp COMMA  &kp RSHFT
+                          &kp LALT   &kp LGUI   &mo 1      &kp SPACE   &kp RET          &trans     &kp BSPC   &kp RGUI
+            >;
 
-        extra4 { status = "reserved"; };
+            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN>;
+        };
 
-        extra5 { status = "reserved"; };
+        // ═════════════════════════════════════════════════════════════════════════════════
+        // LAYER 3: ADJUST - Sistema, RGB, Bluetooth
+        // ═════════════════════════════════════════════════════════════════════════════════
+        // Se activa automáticamente cuando se pulsan NAV+SYM juntos
+        // 
+        //           BT_CLR   BT1     BT2     BT3     BT4     BT5                         F1      F2      F3      F4      F5    PRSC (captura)
+        //           RGB_TOG RGB_HUD RGB_HUI RGB_SAD RGB_SAI RGB_EFF                     F6      F7      F8      F9     F10    WIN+SHIFT+S
+        //           CAPS    RGB_BRD RGB_BRI  CAPS    CAPS    CAPS                        CAPS   CAPS    CAPS    CAPS    CAPS    CAPS
+        //           EXT_PWR  CAPS    CAPS    CAPS    CAPS   CAPS    BOOT   RESET        CAPS    CAPS    CAPS    CAPS    CAPS   CAPS
+        //                             ALT     GUI     NAV     SPACE   ENT         ADJ    BSPC     GUI
+        
+        adjust_layer {
+            bindings = <
+    &bt BT_CLR &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3 &bt BT_SEL 4       &kp F1    &kp F2    &kp F3    &kp F4    &kp F5    &kp PSCRN
+    &rgb_ug RGB_TOG &rgb_ug RGB_HUD &rgb_ug RGB_HUI &rgb_ug RGB_SAD &rgb_ug RGB_SAI &rgb_ug RGB_EFF &kp F6    &kp F7    &kp F8    &kp F9    &kp F10   &kp K_VOL_MUTE
+    &kp CAPS   &rgb_ug RGB_BRD &rgb_ug RGB_BRI &kp CAPS   &kp CAPS   &kp CAPS                        &kp CAPS  &kp CAPS  &kp CAPS  &kp CAPS  &kp CAPS  &kp CAPS
+    &ext_power EP_TOG &kp CAPS   &kp CAPS   &kp CAPS   &kp CAPS   &kp CAPS   &bootloader &sys_reset  &kp CAPS  &kp CAPS  &kp CAPS  &kp CAPS  &kp CAPS  &kp CAPS
+                          &kp LALT   &kp LGUI   &trans     &kp SPACE   &kp RET          &trans    &kp BSPC  &kp RGUI
+            >;
+
+            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN>;
+        };
     };
 };
