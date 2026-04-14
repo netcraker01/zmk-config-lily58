@@ -1,11 +1,7 @@
 /*
- * Lily58 Layout - Spanish + Programming Optimized
- * 
- * Layers:
- * 0 - BASE: QWERTY standard
- * 1 - NAV:  Navegación, flechas, multimedia, F-keys
- * 2 - SYM:  Símbolos, números, programación
- * 3 - ADJUST: RGB, Bluetooth (tri-layer auto)
+ * Copyright (c) 2020 The ZMK Contributors
+ *
+ * SPDX-License-Identifier: MIT
  */
 
 #include <behaviors.dtsi>
@@ -17,6 +13,7 @@
 / {
     conditional_layers {
         compatible = "zmk,conditional-layers";
+
         adjust_layer {
             if-layers = <1 2>;
             then-layer = <3>;
@@ -26,84 +23,47 @@
     keymap {
         compatible = "zmk,keymap";
 
-        // ════════════════════════════════════════════════════════════════════
-        // LAYER 0: BASE - QWERTY
-        // ════════════════════════════════════════════════════════════════════
-        //        ESC     1       2       3       4       5            6       7       8       9       0       BSPC
-        //        TAB     Q       W       E       R       T            Y       U       I       O       P       ´
-        //        CAPS    A       S       D       F       G            H       J       K       L       Ñ       ´
-        //        SHFT    Z       X       C       V       B   MUTE      N       M       ,       .       -       SHFT
-        //                        ALT     GUI     LOWER   SPACE ENT   RAISE   BSPC    GUI
-
         default_layer {
             bindings = <
-    &kp ESC    &kp N1    &kp N2    &kp N3    &kp N4    &kp N5                          &kp N6    &kp N7    &kp N8    &kp N9    &kp N0    &kp BSPC
-    &kp TAB    &kp Q     &kp W     &kp E     &kp R     &kp T                           &kp Y     &kp U     &kp I     &kp O     &kp P     &kp GRAVE
-    &kp CAPS   &kp A     &kp S     &kp D     &kp F     &kp G                           &kp H     &kp J     &kp K     &kp L     &kp SEMI  &kp SQT
-    &kp LSHFT  &kp Z     &kp X     &kp C     &kp V     &kp B     &kp C_MUTE  &kp PLAY    &kp N     &kp M     &kp COMMA &kp DOT   &kp SLASH &kp RSHFT
-                          &kp LALT  &kp LGUI  &mo 1     &kp SPACE  &kp RET          &mo 2     &kp BSPC  &kp RGUI
+&kp ESC    &kp N1  &kp N2  &kp N3    &kp N4    &kp N5                                 &kp N6  &kp N7    &kp N8     &kp N9   &kp N0    &kp BACKSPACE
+&kp TAB    &kp Q   &kp W   &kp E     &kp R     &kp T                                  &kp Y   &kp U     &kp I      &kp O    &kp P     &kp MINUS
+&kp LCTRL  &kp A   &kp S   &kp D     &kp F     &kp G                                  &kp H   &kp J     &kp K      &kp L    &kp SEMI  &kp SQT
+&kp LSHFT  &kp Z   &kp X   &kp C     &kp V     &kp B   &kp C_MUTE    &rgb_ug RGB_TOG  &kp N   &kp M     &kp COMMA  &kp DOT  &kp FSLH  &kp ENTER
+                           &kp LALT  &kp LGUI  &mo 1   &kp SPACE     &kp SPACE        &mo 2   &kp BSPC  &kp RGUI
             >;
 
-            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN>;
+            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN>;
         };
 
-        // ════════════════════════════════════════════════════════════════════
-        // LAYER 1: NAV - Navegación y Multimedia
-        // ════════════════════════════════════════════════════════════════════
-        // Flechas en HJKL (Vim style)
-        // 
-        //        F1      F2      F3      F4      F5      F6           F7      F8      F9      F10     F11     F12
-        //        TAB    HOME     UP     END    PGUP    MUTE         PLAY    HOME     UP     END    PGUP   PRSC
-        //        CAPS   LEFT    DOWN   RIGHT   PGDN    CAPS         CAPS    LEFT    DOWN   RIGHT   PGDN     INS
-        //        SHFT    `       /       \       |       ~   PREV    NEXT    SHFT    [       ]       {       }    SHFT
-        //                        ALT     GUI      -      SPACE ENT    -      BSPC    GUI
-
-        nav_layer {
+        lower_layer {
             bindings = <
-    &kp F1     &kp F2     &kp F3     &kp F4     &kp F5     &kp F6                          &kp F7     &kp F8     &kp F9     &kp F10    &kp F11    &kp F12
-    &kp TAB    &kp HOME   &kp UP     &kp END    &kp PG_UP  &kp C_MUTE                      &kp PLAY   &kp HOME   &kp UP     &kp END    &kp PG_UP  &kp PSCRN
-    &kp CAPS   &kp LEFT   &kp DOWN   &kp RIGHT  &kp PG_DN  &kp CAPS                        &kp CAPS   &kp LEFT   &kp DOWN   &kp RIGHT  &kp PG_DN  &kp INS
-    &kp LSHFT  &kp GRAVE  &kp SLASH  &kp BSLH   &kp PIPE   &kp TILDE   &kp C_PREV   &kp C_NEXT  &kp LSHFT  &kp LBKT   &kp RBKT   &kp LBRC   &kp RBRC   &kp RSHFT
-                          &kp LALT   &kp LGUI   &trans     &kp SPACE   &kp RET          &trans     &kp BSPC   &kp RGUI
+&bt BT_CLR  &bt BT_SEL 0      &bt BT_SEL 1       &bt BT_SEL 2       &bt BT_SEL 3  &bt BT_SEL 4                    &trans     &trans     &trans     &trans    &trans    &trans
+&kp F1      &kp F2            &kp F3             &kp F4             &kp F5        &kp F6                          &kp F7     &kp F8     &kp F9     &kp F10   &kp F11   &kp F12
+&kp GRAVE   &kp EXCL          &kp AT             &kp HASH           &kp DOLLAR    &kp PRCNT                       &kp CARET  &kp AMPS   &kp ASTRK  &kp LPAR  &kp RPAR  &kp TILDE
+&trans      &ext_power EP_ON  &ext_power EP_OFF  &ext_power EP_TOG  &trans        &trans        &trans    &trans  &trans     &kp MINUS  &kp PLUS   &kp LBRC  &kp RBRC  &kp PIPE
+                                                 &trans             &trans        &trans        &trans    &trans  &trans     &trans     &trans
             >;
 
-            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN>;
+            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN>;
         };
 
-        // ════════════════════════════════════════════════════════════════════
-        // LAYER 2: SYM - Símbolos y Números
-        // ════════════════════════════════════════════════════════════════════
-        // 
-        //         `       !       @       #       $       %            ^       &       *       (       )       BSPC
-        //        TAB     1       2       3       4       5            6       7       8       9       0         |
-        //        SQT     !       @       #       $       %            ~       -       =       [       ]         \
-        //        SHFT    <       >       :       /       _   CAPS    CAPS    SHFT    ;       '       "       ,    SHFT
-        //                        ALT     GUI      -      SPACE ENT    -      BSPC    GUI
-
-        sym_layer {
+        raise_layer {
             bindings = <
-    &kp GRAVE  &kp EXCL   &kp AT     &kp HASH   &kp DLLR   &kp PRCNT                        &kp CARET  &kp AMPS   &kp ASTRK  &kp LPAR   &kp RPAR   &kp BSPC
-    &kp TAB    &kp N1     &kp N2     &kp N3     &kp N4     &kp N5                           &kp N6     &kp N7     &kp N8     &kp N9     &kp N0     &kp PIPE
-    &kp SQT    &kp EXCL   &kp AT     &kp HASH   &kp DLLR   &kp PRCNT                        &kp TILDE  &kp MINUS  &kp EQUAL  &kp LBKT   &kp RBKT   &kp BSLH
-    &kp LSHFT  &kp LT     &kp GT     &kp COLN   &kp FSLH   &kp UNDERSC   &kp CAPS   &kp CAPS      &kp LSHFT  &kp SEMI   &kp QUOT   &kp DQT    &kp COMMA   &kp RSHFT
-                          &kp LALT   &kp LGUI   &mo 1      &kp SPACE   &kp RET          &trans     &kp BSPC   &kp RGUI
+&trans     &trans  &trans  &trans   &trans   &trans                     &trans       &trans     &trans     &trans    &trans     &trans
+&kp GRAVE  &kp N1  &kp N2  &kp N3   &kp N4   &kp N5                     &kp N6       &kp N7     &kp N8     &kp N9    &kp N0     &trans
+&kp F1     &kp F2  &kp F3  &kp F4   &kp F5   &kp F6                     &trans       &kp LEFT   &kp DOWN   &kp UP    &kp RIGHT  &trans
+&kp F7     &kp F8  &kp F9  &kp F10  &kp F11  &kp F12  &trans    &trans  &kp KP_PLUS  &kp MINUS  &kp EQUAL  &kp LBKT  &kp RBKT   &kp BSLH
+                           &trans   &trans   &trans   &trans    &trans  &trans       &trans     &trans
             >;
-
-            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN>;
         };
-
-        // ════════════════════════════════════════════════════════════════════
-        // LAYER 3: ADJUST - Sistema, RGB, Bluetooth
-        // ════════════════════════════════════════════════════════════════════
-        // Se activa automáticamente cuando se pulsan NAV+SYM juntos
 
         adjust_layer {
             bindings = <
-    &bt BT_CLR &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3 &bt BT_SEL 4       &kp F1    &kp F2    &kp F3    &kp F4    &kp F5    &kp PSCRN
-    &rgb_ug RGB_TOG &rgb_ug RGB_HUD &rgb_ug RGB_HUI &rgb_ug RGB_SAD &rgb_ug RGB_SAI &rgb_ug RGB_EFF &kp F6    &kp F7    &kp F8    &kp F9    &kp F10   &kp C_MUTE
-    &kp CAPS   &rgb_ug RGB_BRD &rgb_ug RGB_BRI &kp CAPS   &kp CAPS   &kp CAPS                        &kp CAPS  &kp CAPS  &kp CAPS  &kp CAPS  &kp CAPS  &kp CAPS
-    &ext_power EP_TOG &kp CAPS   &kp CAPS   &kp CAPS   &kp CAPS   &kp CAPS   &bootloader &sys_reset  &kp CAPS  &kp CAPS  &kp CAPS  &kp CAPS  &kp CAPS  &kp CAPS
-                          &kp LALT   &kp LGUI   &trans     &kp SPACE   &kp RET          &trans    &kp BSPC  &kp RGUI
+&bt BT_CLR         &bt BT_SEL 0     &bt BT_SEL 1     &bt BT_SEL 2     &bt BT_SEL 3     &bt BT_SEL 4                       &trans  &trans  &trans  &trans  &trans  &trans
+&ext_power EP_TOG  &rgb_ug RGB_HUD  &rgb_ug RGB_HUI  &rgb_ug RGB_SAD  &rgb_ug RGB_SAI  &rgb_ug RGB_EFF                    &trans  &trans  &trans  &trans  &trans  &trans
+&trans             &rgb_ug RGB_BRD  &rgb_ug RGB_BRI  &trans           &trans           &trans                             &trans  &trans  &trans  &trans  &trans  &trans
+&trans             &trans           &trans           &trans           &trans           &trans           &trans    &trans  &trans  &trans  &trans  &trans  &trans  &trans
+                                                     &trans           &trans           &trans           &trans    &trans  &trans  &trans  &trans
             >;
 
             sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN>;
