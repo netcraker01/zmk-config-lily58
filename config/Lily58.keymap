@@ -5,24 +5,13 @@
  * 0 - BASE: QWERTY con homerow mods (A=GUI, S=ALT, D=CTRL, F=SHIFT)
  * 1 - NAV:  Navegación, flechas, multimedia
  * 2 - SYM:  Símbolos, números
- * 3 - ADJUST: RGB, Bluetooth, sistema, capturas (tri-layer automático)
- *
- * Combos:
- * - Q+W = ESC
- * - J+K = TAB
- * - K+L = ENTER
- * - U+I = BSPC
- * - O+P = DEL
- * - M+COMMA = Ñ
+ * 3 - ADJUST: RGB, Bluetooth, sistema
  *
  * Homerow mods (hold = modifier, tap = key):
- * - A = GUI (Win/Cmd) - mantiene Win para shortcuts
+ * - A = GUI (Win/Cmd)
  * - S = ALT
  * - D = CTRL
  * - F = SHIFT
- *
- * Capturas de pantalla en ADJUST:
- * - PRTSC = Captura pantalla completa
  */
 
 #include <behaviors.dtsi>
@@ -32,125 +21,6 @@
 #include <dt-bindings/zmk/rgb.h>
 
 / {
-    // Behavior definitions
-    behaviors {
-        // Homerow mods con configuración óptima
-        hm: homerow_mods {
-            compatible = "zmk,behavior-hold-tap";
-            #binding-cells = <2>;
-            tapping-term-ms = <280>;
-            quick-tap-ms = <175>;
-            flavor = "balanced";
-            require-prior-idle-ms = <150>;
-            hold-trigger-on-release;
-            bindings = <&kp>, <&kp>;
-        };
-
-        // Macro: Win+Shift+S (Captura de pantalla Windows)
-        screen_cap: screen_capture {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings = <&kp LGUI &kp LSHFT &kp S>;
-            wait-ms = <5>;
-            tap-ms = <5>;
-        };
-
-        // Macro: Alt+Tab (Cambio de aplicaciones)
-        alt_tab: alt_tab {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings = <&kp LALT &kp TAB>;
-            wait-ms = <5>;
-            tap-ms = <5>;
-        };
-
-        // Macro: Ctrl+Shift+Tab (Pestaña anterior)
-        prev_tab: prev_tab {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings = <&kp LCTRL &kp LSHFT &kp TAB>;
-            wait-ms = <5>;
-            tap-ms = <5>;
-        };
-
-        // Macro: Ctrl+Tab (Pestaña siguiente)
-        next_tab: next_tab {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings = <&kp LCTRL &kp TAB>;
-            wait-ms = <5>;
-            tap-ms = <5>;
-        };
-    };
-
-    // Combos - pulsar dos teclas simultáneamente
-    combos {
-        compatible = "zmk,combos";
-
-        // Q+W = ESC (izquierda)
-        esc_combo {
-            bindings = <&kp ESC>;
-            key-positions = <1 2>;
-            layers = <0>;
-            timeout-ms = <40>;
-            require-prior-idle-ms = <150>;
-        };
-
-        // O+P = DEL (derecha, fila superior)
-        del_combo {
-            bindings = <&kp DEL>;
-            key-positions = <13 14>;
-            layers = <0>;
-            timeout-ms = <40>;
-            require-prior-idle-ms = <150>;
-        };
-
-        // J+K = TAB (derecha, homerow)
-        tab_combo {
-            bindings = <&kp TAB>;
-            key-positions = <15 16>;
-            layers = <0>;
-            timeout-ms = <40>;
-            require-prior-idle-ms = <150>;
-        };
-
-        // K+L = ENTER (derecha, homerow)
-        enter_combo {
-            bindings = <&kp RET>;
-            key-positions = <16 17>;
-            layers = <0>;
-            timeout-ms = <40>;
-            require-prior-idle-ms = <150>;
-        };
-
-        // U+I = BSPC (derecha, fila superior)
-        bspc_combo {
-            bindings = <&kp BSPC>;
-            key-positions = <14 15>;
-            layers = <0>;
-            timeout-ms = <40>;
-            require-prior-idle-ms = <150>;
-        };
-
-        // M+COMMA = ; (posición de Ñ en español)
-        enye_combo {
-            bindings = <&kp SEMI>;
-            key-positions = <20 21>;
-            layers = <0>;
-            timeout-ms = <40>;
-            require-prior-idle-ms = <150>;
-        };
-
-        // V+B = CAPS LOCK (izquierda)
-        caps_combo {
-            bindings = <&kp CAPS>;
-            key-positions = <19 5>;
-            layers = <0>;
-            timeout-ms = <40>;
-            require-prior-idle-ms = <150>;
-        };
-    };
-
     // Tri-layer: NAV+SYM activa ADJUST automáticamente
     conditional_layers {
         compatible = "zmk,conditional-layers";
@@ -163,40 +33,40 @@
     keymap {
         compatible = "zmk,keymap";
 
-        // ═════════════════════════════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════════════════════════════
         // LAYER 0: BASE - QWERTY con Homerow Mods
-        // ═════════════════════════════════════════════════════════════════════════════════
-        // Homerow mods: A=GUI, S=ALT, D=CTRL, F=SHIFT (cuando se mantienen)
+        // ════════════════════════════════════════════════════════════════════
+        // Homerow: A=GUI, S=ALT, D=CTRL, F=SHIFT (hold)
         // 
-        //            ESC      1       2       3       4       5                         6       7       8       9       0       BSPC
-        //            TAB      Q       W       E       R       T                         Y       U       I       O       P       ´
-        //            CAPS     A(GUI)  S(ALT)  D(CTL)  F(SHT)  G                         H       J       K       L       Ñ       ¡
-        //            SHFT     Z       X       C       V       B    MUTE      PLAY       N       M       ,       .       -       SHFT
-        //                             ALT     GUI     NAV     SPACE   ENT       SYM      BSPC     GUI
-        
+        //        ESC     1       2       3       4       5            6       7       8       9       0       BSPC
+        //        TAB     Q       W       E       R       T            Y       U       I       O       P       ´
+        //        CAPS    A(GUI) S(ALT)  D(CTL)  F(SHT)  G            H       J       K       L       Ñ       ¡
+        //        SHFT    Z       X       C       V       B   MUTE    N       M       ,       .       -       SHFT
+        //                        ALT     GUI     LOWER   SPACE ENT   RAISE   BSPC    GUI
+
         default_layer {
             bindings = <
-    &kp ESC     &kp N1     &kp N2     &kp N3     &kp N4     &kp N5                          &kp N6     &kp N7     &kp N8     &kp N9     &kp N0     &kp BSPC
-    &kp TAB     &kp Q      &kp W      &kp E      &kp R      &kp T                           &kp Y      &kp U      &kp I      &kp O      &kp P      &kp GRAVE
-    &kp CAPS    &hm LGUI A &hm LALT S &hm LCTRL D &hm LSHFT F &kp G                          &kp H      &kp J      &kp K      &kp L      &kp SEMI   &kp RA
-    &kp LSHFT   &kp Z      &kp X      &kp C      &kp V      &kp B      &kp C_MUTE   &kp PLAY      &kp N      &kp M      &kp COMMA  &kp DOT    &kp SLASH  &kp RSHFT
-                          &kp LALT    &kp LGUI   &mo 1      &kp SPACE   &kp RET          &mo 2      &kp BSPC   &kp RGUI
+    &kp ESC    &kp N1    &kp N2    &kp N3    &kp N4    &kp N5                          &kp N6    &kp N7    &kp N8    &kp N9    &kp N0    &kp BSPC
+    &kp TAB    &kp Q     &kp W     &kp E     &kp R     &kp T                           &kp Y     &kp U     &kp I     &kp O     &kp P     &kp GRAVE
+    &kp CAPS   &mt LGUI A &mt LALT S &mt LCTRL D &mt LSHFT F &kp G                      &kp H     &kp J     &kp K     &kp L     &kp SEMI  &kp RA
+    &kp LSHFT  &kp Z     &kp X     &kp C     &kp V     &kp B     &kp C_MUTE  &kp PLAY   &kp N     &kp M     &kp COMMA &kp DOT   &kp SLASH &kp RSHFT
+                          &kp LALT  &kp LGUI  &mo 1     &kp SPACE  &kp RET          &mo 2     &kp BSPC  &kp RGUI
             >;
 
             sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN>;
         };
 
-        // ═════════════════════════════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════════════════════════════
         // LAYER 1: NAV - Navegación y Multimedia
-        // ═════════════════════════════════════════════════════════════════════════════════
-        // Flechas en HJKL, Home/End, multimedia, cambio de apps
+        // ════════════════════════════════════════════════════════════════════
+        // Flechas en HJKL (Vim style), multimedia
         // 
-        //            F1      F2      F3      F4      F5      F6                         F7      F8      F9      F10     F11     F12
-        //            TAB    HOME     UP     END    PGUP   MUTE                       PLAY    HOME     UP     END    PGUP   PRSC
-        //            CAPS   LEFT    DOWN   RIGHT   PGDN  CAPS                        CAPS   LEFT    DOWN   RIGHT   PGDN    INS
-        //            SHFT    ~       /       \       |      `     PREV    NEXT        SHFT    [       ]       {       }       SHFT
-        //                             ALT     GUI     NAV     SPACE   ENT         NAV     BSPC     GUI
-        
+        //        F1      F2      F3      F4      F5      F6           F7      F8      F9      F10     F11     F12
+        //        TAB    HOME     UP     END    PGUP    MUTE         PLAY    HOME     UP     END    PGUP   PRSC
+        //        CAPS   LEFT    DOWN   RIGHT   PGDN    CAPS         CAPS    LEFT    DOWN   RIGHT   PGDN     INS
+        //        SHFT    `       /       \       |       ~   PREV    NEXT    SHFT    [       ]       {       }    SHFT
+        //                        ALT     GUI      -      SPACE ENT      -      BSPC    GUI
+
         nav_layer {
             bindings = <
     &kp F1     &kp F2     &kp F3     &kp F4     &kp F5     &kp F6                          &kp F7     &kp F8     &kp F9     &kp F10    &kp F11    &kp F12
@@ -209,44 +79,44 @@
             sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN>;
         };
 
-        // ═════════════════════════════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════════════════════════════
         // LAYER 2: SYM - Símbolos y Números
-        // ═════════════════════════════════════════════════════════════════════════════════
-        // Números en homerow derecho, símbolos alrededor
+        // ════════════════════════════════════════════════════════════════════
+        // Números y símbolos para programación
         // 
-        //             `       !       @       #       $       %                          ^       &       *       (       )       BSPC
-        //            TAB     1       2       3       4       5                          6       7       8       9       0         |
-        //            SQT     !       @       #       $       %                          ~       -       =       [       ]         \
-        //            SHFT    <       >       :       /       _    CAPS     CAPS        SHFT    ;       '       "       ,       SHFT
-        //                             ALT     GUI     NAV     SPACE   ENT         SYM     BSPC     GUI
-        
+        //         `       !       @       #       $       %            ^       &       *       (       )       BSPC
+        //        TAB     1       2       3       4       5            6       7       8       9       0         |
+        //        SQT     !       @       #       $       %            ~       -       =       [       ]         \
+        //        SHFT    <       >       :       /       _   CAPS    CAPS    SHFT    ;       '       "       ,    SHFT
+        //                        ALT     GUI      -      SPACE ENT      -      BSPC    GUI
+
         sym_layer {
             bindings = <
     &kp GRAVE  &kp EXCL   &kp AT     &kp HASH   &kp DLLR   &kp PRCNT                        &kp CARET  &kp AMPS   &kp ASTRK  &kp LPAR   &kp RPAR   &kp BSPC
     &kp TAB    &kp N1     &kp N2     &kp N3     &kp N4     &kp N5                           &kp N6     &kp N7     &kp N8     &kp N9     &kp N0     &kp PIPE
     &kp SQT    &kp EXCL   &kp AT     &kp HASH   &kp DLLR   &kp PRCNT                        &kp TILDE  &kp MINUS  &kp EQUAL  &kp LBKT   &kp RBKT   &kp BSLH
-    &kp LSHFT  &kp LT     &kp GT     &kp COLN   &kp FSLH   &kp UNDERSC   &kp CAPS   &kp CAPS      &kp LSHFT  &kp SEMI   &kp QUOT   &kp DQT    &kp COMMA  &kp RSHFT
+    &kp LSHFT  &kp LT     &kp GT     &kp COLN   &kp FSLH   &kp UNDERSC   &kp CAPS   &kp CAPS      &kp LSHFT  &kp SEMI   &kp QUOT   &kp DQT    &kp COMMA   &kp RSHFT
                           &kp LALT   &kp LGUI   &mo 1      &kp SPACE   &kp RET          &trans     &kp BSPC   &kp RGUI
             >;
 
             sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN>;
         };
 
-        // ═════════════════════════════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════════════════════════════
         // LAYER 3: ADJUST - Sistema, RGB, Bluetooth
-        // ═════════════════════════════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════════════════════════════
         // Se activa automáticamente cuando se pulsan NAV+SYM juntos
         // 
-        //           BT_CLR   BT1     BT2     BT3     BT4     BT5                         F1      F2      F3      F4      F5    PRSC (captura)
-        //           RGB_TOG RGB_HUD RGB_HUI RGB_SAD RGB_SAI RGB_EFF                     F6      F7      F8      F9     F10    WIN+SHIFT+S
-        //           CAPS    RGB_BRD RGB_BRI  CAPS    CAPS    CAPS                        CAPS   CAPS    CAPS    CAPS    CAPS    CAPS
-        //           EXT_PWR  CAPS    CAPS    CAPS    CAPS   CAPS    BOOT   RESET        CAPS    CAPS    CAPS    CAPS    CAPS   CAPS
-        //                             ALT     GUI     NAV     SPACE   ENT         ADJ    BSPC     GUI
-        
+        //       BT_CLR   BT1     BT2     BT3     BT4     BT5           F1      F2      F3      F4      F5    PRSC
+        //       RGB_TOG RGB_HUD RGB_HUI RGB_SAD RGB_SAI RGB_EFF       F6      F7      F8      F9     F10     MUTE
+        //       CAPS    RGB_BRD RGB_BRI  CAPS    CAPS    CAPS         CAPS    CAPS    CAPS    CAPS    CAPS    CAPS
+        //       EXT_PWR  CAPS    CAPS    CAPS    CAPS   CAPS  BOOT  RESET    CAPS    CAPS    CAPS    CAPS    CAPS  CAPS
+        //                        ALT     GUI      -      SPACE ENT      -      BSPC    GUI
+
         adjust_layer {
             bindings = <
     &bt BT_CLR &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3 &bt BT_SEL 4       &kp F1    &kp F2    &kp F3    &kp F4    &kp F5    &kp PSCRN
-    &rgb_ug RGB_TOG &rgb_ug RGB_HUD &rgb_ug RGB_HUI &rgb_ug RGB_SAD &rgb_ug RGB_SAI &rgb_ug RGB_EFF &kp F6    &kp F7    &kp F8    &kp F9    &kp F10   &kp K_VOL_MUTE
+    &rgb_ug RGB_TOG &rgb_ug RGB_HUD &rgb_ug RGB_HUI &rgb_ug RGB_SAD &rgb_ug RGB_SAI &rgb_ug RGB_EFF &kp F6    &kp F7    &kp F8    &kp F9    &kp F10   &kp C_MUTE
     &kp CAPS   &rgb_ug RGB_BRD &rgb_ug RGB_BRI &kp CAPS   &kp CAPS   &kp CAPS                        &kp CAPS  &kp CAPS  &kp CAPS  &kp CAPS  &kp CAPS  &kp CAPS
     &ext_power EP_TOG &kp CAPS   &kp CAPS   &kp CAPS   &kp CAPS   &kp CAPS   &bootloader &sys_reset  &kp CAPS  &kp CAPS  &kp CAPS  &kp CAPS  &kp CAPS  &kp CAPS
                           &kp LALT   &kp LGUI   &trans     &kp SPACE   &kp RET          &trans    &kp BSPC  &kp RGUI
