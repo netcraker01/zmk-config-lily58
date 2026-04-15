@@ -1,0 +1,29 @@
+{
+  "version": "1.0",
+  "last_updated": "2026-04-15T00:07:22.377694",
+  "behaviors": {
+    "1": "bootloader",
+    "2": "caps_word",
+    "3": "kp",
+    "4": "grv_esc",
+    "5": "key_repeat",
+    "6": "kt",
+    "7": "mo",
+    "8": "lt",
+    "9": "mt",
+    "10": "none",
+    "11": "out",
+    "12": "sk",
+    "13": "sl",
+    "14": "studio_unlock",
+    "15": "sys_reset",
+    "16": "to",
+    "17": "tog",
+    "18": "bt",
+    "19": "enc_key_press",
+    "20": "ext_power",
+    "21": "rgb_ug",
+    "22": "trans"
+  },
+  "details": {}
+}

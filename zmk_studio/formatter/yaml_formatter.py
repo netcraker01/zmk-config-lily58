@@ -1,0 +1,222 @@
+"""
+YAML Formatter for ZMK Keymaps.
+
+Exports keymaps in human-readable YAML format, suitable for
+configuration files, documentation, or manual editing.
+"""
+
+from typing import Dict, List, Any, Optional
+from datetime import datetime
+
+try:
+    import yaml
+except ImportError:
+    yaml = None
+
+from ..formatter import OutputFormatter
+
+
+class YAMLFormatter(OutputFormatter):
+    """
+    Formatter for YAML export of keymap data.
+
+    Produces a human-readable YAML file with:
+    - Metadata: timestamp, version, etc.
+    - Keymap info: layers, available layers, etc.
+    - Layers: formatted bindings in readable structure
+    """
+
+    def __init__(self, default_flow_style: bool = False):
+        """
+        Initialize the YAML formatter.
+
+        Args:
+            default_flow_style: Whether to use flow style (inline) for collections
+        """
+        self.default_flow_style = default_flow_style
+
+    def format_binding(
+        self, binding: Dict[str, Any], behavior_map: Optional[Dict[int, str]] = None
+    ) -> Dict[str, Any]:
+        """
+        Format a single behavior binding into a YAML-serializable dict.
+
+        Args:
+            binding: A dict with keys 'behavior_id', 'param1', 'param2'
+            behavior_map: Optional mapping from behavior IDs to names
+
+        Returns:
+            Dict with binding data
+        """
+        bid = binding.get("behavior_id", 0)
+        p1 = binding.get("param1", 0)
+        p2 = binding.get("param2", 0)
+
+        result = {
+            "behavior_id": bid,
+            "param1": p1,
+            "param2": p2,
+        }
+
+        # Add behavior name if map is provided
+        if behavior_map is not None and bid in behavior_map:
+            result["behavior_name"] = behavior_map[bid]
+
+        # Also copy existing behavior_name if present
+        if "behavior_name" in binding:
+            result["behavior_name"] = binding["behavior_name"]
+
+        return result
+
+    def format_bindings(
+        self,
+        bindings: List[Dict[str, Any]],
+        behavior_map: Optional[Dict[int, str]] = None,
+    ) -> List[Dict[str, Any]]:
+        """
+        Format multiple bindings at once.
+
+        Args:
+            bindings: List of binding dicts
+            behavior_map: Optional mapping from behavior IDs to names
+
+        Returns:
+            List of formatted binding dicts
+        """
+        return [self.format_binding(b, behavior_map) for b in bindings]
+
+    def format_layer(
+        self, layer: Dict[str, Any], behavior_map: Optional[Dict[int, str]] = None
+    ) -> Dict[str, Any]:
+        """
+        Format a single layer with all its bindings.
+
+        Args:
+            layer: A dict with keys 'id', 'name', 'bindings'
+            behavior_map: Optional mapping from behavior IDs to names
+
+        Returns:
+            Dict with layer data and formatted bindings
+        """
+        layer_id = layer.get("id", 0)
+        layer_name = layer.get("name", "")
+        bindings = layer.get("bindings", [])
+
+        result = {
+            "id": layer_id,
+            "name": layer_name,
+            "bindings": self.format_bindings(bindings, behavior_map),
+        }
+
+        return result
+
+    def format_layers(
+        self,
+        layers: List[Dict[str, Any]],
+        behavior_map: Optional[Dict[int, str]] = None,
+    ) -> List[Dict[str, Any]]:
+        """
+        Format multiple layers at once.
+
+        Args:
+            layers: List of layer dicts
+            behavior_map: Optional mapping from behavior IDs to names
+
+        Returns:
+            List of formatted layer dicts
+        """
+        return [self.format_layer(layer, behavior_map) for layer in layers]
+
+    def format_header(self, keymap: Dict[str, Any]) -> str:
+        """
+        Format the header/metadata section of the YAML output.
+
+        Args:
+            keymap: The complete keymap dict with metadata
+
+        Returns:
+            Formatted YAML header string
+        """
+        header = {
+            "metadata": {
+                "timestamp": datetime.now().isoformat(),
+                "format": "zmk-keymap-yaml",
+                "version": "1.0",
+            },
+            "keymapInfo": {
+                "availableLayers": keymap.get("availableLayers", 0),
+                "maxLayerNameLength": keymap.get("maxLayerNameLength", 0),
+                "totalLayers": len(keymap.get("layers", [])),
+            },
+        }
+
+        if yaml is not None:
+            return yaml.dump(
+                header, default_flow_style=self.default_flow_style, sort_keys=False
+            )
+        else:
+            # Fallback if pyyaml not installed
+            return f"# YAML formatting requires pyyaml to be installed\n# {header}\n"
+
+    def format_footer(self) -> str:
+        """
+        Format the footer/closing section of the YAML output.
+
+        Returns:
+            Empty string (YAML doesn't have a footer concept)
+        """
+        return ""
+
+    def format(self, keymap: Dict[str, Any]) -> str:
+        """
+        Format keymap as YAML (implements OutputFormatter protocol).
+
+        Args:
+            keymap: The complete keymap dict
+
+        Returns:
+            YAML-formatted string
+        """
+        return self.format_keymap(keymap)
+
+    def format_keymap(
+        self,
+        keymap: Dict[str, Any],
+        behavior_map: Optional[Dict[int, str]] = None,
+        include_metadata: bool = True,
+    ) -> str:
+        """
+        Format the complete keymap as YAML.
+
+        Args:
+            keymap: The complete keymap dict
+            behavior_map: Optional mapping from behavior IDs to names
+            include_metadata: Whether to include metadata section
+
+        Returns:
+            YAML-formatted string
+        """
+        if yaml is None:
+            raise ImportError(
+                "pyyaml is required for YAML formatting. "
+                "Install it with: pip install pyyaml"
+            )
+
+        output = {}
+
+        if include_metadata:
+            header = self.format_header(keymap)
+            # Parse it back to merge
+            output = yaml.safe_load(header)
+
+        # Format layers
+        layers = keymap.get("layers", [])
+        output["layers"] = self.format_layers(layers, behavior_map)
+
+        # Dump to YAML
+        return yaml.dump(
+            output, default_flow_style=self.default_flow_style, sort_keys=False
+        )
+
+
+__all__ = ["YAMLFormatter"]

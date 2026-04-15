@@ -1,0 +1,18 @@
+# ZMK Keymap Extractor - Python Dependencies
+# Generated for zmk-keymap-extractor-improvements change
+
+# Serial communication
+pyserial>=3.5
+
+# CLI framework
+click>=8.0
+
+# YAML export format
+PyYAML>=6.0
+
+# Optional: for better protobuf handling (not used - we use custom implementation)
+# protobuf>=4.0
+
+# Development dependencies (optional)
+# pytest>=7.0
+# pytest-cov>=4.0

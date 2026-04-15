@@ -1,0 +1,69 @@
+# openspec/config.yaml
+schema: spec-driven
+
+context: |
+  Stack: Python 3.14.0, Serial RPC (pyserial), Protobuf encoding/decoding
+  Project: ZMK firmware keymap extractor for Lily58 keyboard
+  Architecture: Command-line tool with serial communication to ZMK Studio RPC protocol
+  Style: No linting/formatting tools configured yet
+
+strict_tdd: false
+
+rules:
+  proposal:
+    - Include rollout plan for protocol changes
+    - Identify affected Python modules
+  specs:
+    - Use Given/When/Then format for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+  design:
+    - Include sequence diagrams for protocol flows
+    - Document keycode mapping decisions with rationale
+  tasks:
+    - Group tasks by phase (protocol, mapping, validation)
+    - Use hierarchical numbering (1.1, 1.2, etc.)
+    - Keep tasks small enough to complete in one session
+  apply:
+    - Follow Python typing patterns where applicable
+    - Add docstrings to all functions
+  verify:
+    - Compare extraction against original keymap file
+    - Validate protocol decoding with raw binary dumps
+  archive:
+    - Check that extracted keymap compiles with ZMK
+
+testing:
+  detected_at: "2026-04-14"
+
+  test_runner:
+    command: NOT_CONFIGURED
+    framework: NOT_FOUND
+
+  test_layers:
+    unit:
+      available: false
+      tool: —
+    integration:
+      available: false
+      tool: —
+    e2e:
+      available: false
+      tool: —
+
+  coverage:
+    available: false
+    command: —
+
+  quality_tools:
+    linter:
+      available: false
+      command: —
+    type_checker:
+      available: false
+      command: —
+    formatter:
+      available: false
+      command: —
+
+  strict_tdd: false
+  reason: "No test runner configured - cannot enable Strict TDD Mode"
