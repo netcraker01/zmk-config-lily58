@@ -89,20 +89,24 @@ def format_modifiers(modifiers: List[str], nested: bool = False) -> str:
     """
     Format a list of modifier names into ZMK syntax.
 
+    ZMK mod-tap uses space-separated modifiers in parentheses:
+    - Single: LCTRL
+    - Multiple: (LCTRL LSHFT LALT)
+
     Args:
         modifiers: List of modifier names
-        nested: If True, use nested parentheses; if False, use linear format
+        nested: Ignored (kept for backwards compatibility)
 
     Returns:
         Formatted string
 
     Examples:
         >>> format_modifiers(['LCTRL', 'LSHFT'])
-        'LCTRL(LSHFT)'
-        >>> format_modifiers(['LCTRL'], nested=False)
+        '(LCTRL LSHFT)'
+        >>> format_modifiers(['LCTRL'])
         'LCTRL'
-        >>> format_modifiers(['LCTRL', 'LSHFT', 'LALT'], nested=False)
-        'LCTRL(LSHFT(LALT))'
+        >>> format_modifiers(['LCTRL', 'LSHFT', 'LALT'])
+        '(LCTRL LSHFT LALT)'
     """
     if not modifiers:
         return ""
@@ -110,12 +114,8 @@ def format_modifiers(modifiers: List[str], nested: bool = False) -> str:
     if len(modifiers) == 1:
         return modifiers[0]
 
-    if nested:
-        # Linear nested format: LCTRL(LSHFT(LALT(...)))
-        return "(".join(modifiers) + ")" * (len(modifiers) - 1)
-    else:
-        # Parenthesized format: (LCTRL LSHFT LALT)
-        return "(" + " ".join(modifiers) + ")"
+    # ZMK mod-tap uses space-separated modifiers in parentheses
+    return "(" + " ".join(modifiers) + ")"
 
 
 def format_modifiers_from_bitmask(value: int) -> str:

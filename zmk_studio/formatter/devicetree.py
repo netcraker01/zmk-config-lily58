@@ -39,6 +39,8 @@ class DevicetreeFormatter:
         lines.append("#include <behaviors.dtsi>")
         lines.append("#include <dt-bindings/zmk/keys.h>")
         lines.append("#include <dt-bindings/zmk/bt.h>")
+        lines.append("#include <dt-bindings/zmk/ext_power.h>")
+        lines.append("#include <dt-bindings/zmk/rgb.h>")
         lines.append("")
         lines.append("/ {")
         lines.append("\tkeymap {")
@@ -162,12 +164,16 @@ class DevicetreeFormatter:
             return f"&bt BT_SEL {param2}"
 
         elif behavior_name == "rgb_ug":
-            # RGB Underglow: &rgb_ug param1 param2
-            return f"&rgb_ug {param1} {param2}"
+            # RGB Underglow: &rgb_ug RGB_TOG or &rgb_ug command param
+            from zmk_studio.mapping.rgb import format_rgb_binding
+
+            return format_rgb_binding(param1, param2)
 
         elif behavior_name == "ext_power":
-            # External power: &ext_power param1 param2
-            return f"&ext_power {param1} {param2}"
+            # External power: &ext_power EP_ON, EP_OFF, or EP_TOG
+            from zmk_studio.mapping.ext_power import format_ext_power_binding
+
+            return format_ext_power_binding(param1, param2)
 
         elif behavior_name == "kt":
             # Key-tap: &kt KEY (key tap behavior)

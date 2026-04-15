@@ -441,19 +441,6 @@ def keycode_with_modifiers_name(param: int) -> Optional[str]:
         # All shifted keys now have valid ZMK definitions
     }
 
-    # Base key mappings for shifted keys that don't have a direct ZMK keycode
-    # These will be output as LS(base_key) in the keymap
-    shift_base_key_fallback = {
-        0x2D: "MINUS",  # _ = SHIFT + MINUS
-        0x2F: "LBKT",  # { = SHIFT + LBKT
-        0x30: "RBKT",  # } = SHIFT + RBKT
-        0x33: "SEMI",  # : = SHIFT + SEMI
-        0x35: "GRAVE",  # ~ = SHIFT + GRAVE
-        0x36: "COMMA",  # < = SHIFT + COMMA
-        0x37: "DOT",  # > = SHIFT + DOT
-        0x38: "FSLH",  # ? = SHIFT + FSLH
-    }
-
     # Check for SHIFT modifier (modifier byte 0x02)
     if modifier == 0x02 and usage_page == 0x07:
         # First check if we have a valid shifted keycode name
@@ -465,6 +452,29 @@ def keycode_with_modifiers_name(param: int) -> Optional[str]:
         # Unknown shifted key - return the base key name with LS()
         base_name = HID_KEYCODES.get(usage_code, f"0x{usage_code:02X}")
         return f"LS({base_name})"
+
+    # Handle other modifiers using ZMK's modifier wrapper syntax
+    # LC() = LCTRL, LS() = LSHFT, LA() = LALT, LG() = LGUI
+    # RC() = RCTRL, RS() = RSHFT, RA() = RALT, RG() = RGUI
+    if usage_page == 0x07 and modifier != 0:
+        base_name = HID_KEYCODES.get(usage_code, f"0x{usage_code:02X}")
+        modifier_wrappers = {
+            0x01: "LC",  # LCTRL
+            0x02: "LS",  # LSHFT
+            0x04: "LA",  # LALT
+            0x08: "LG",  # LGUI
+            0x10: "RC",  # RCTRL
+            0x20: "RS",  # RSHFT
+            0x40: "RA",  # RALT (AltGr)
+            0x80: "RG",  # RGUI
+        }
+        # Build nested wrapper for multiple modifiers
+        # e.g., 0x43 = LCTRL|LSHFT|RALT -> RA(LS(LC(base)))
+        result = base_name
+        for bit in sorted(modifier_wrappers.keys(), reverse=True):
+            if modifier & bit:
+                result = f"{modifier_wrappers[bit]}({result})"
+        return result
 
     # Check for Consumer page (usage_page 0x05 or 0x0C)
     if usage_page in (0x05, 0x0C):
