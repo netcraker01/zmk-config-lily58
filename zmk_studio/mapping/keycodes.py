@@ -75,7 +75,7 @@ HID_KEYCODES: Dict[int, str] = {
     0x35: "GRAVE",
     0x36: "COMMA",
     0x37: "DOT",
-    0x38: "SLASH",
+    0x38: "FSLH",  # Forward slash - ZMK uses FSLH, not SLASH
     0x39: "CAPS",
     # Function keys (0x3A-0x45)
     0x3A: "F1",
@@ -105,9 +105,9 @@ HID_KEYCODES: Dict[int, str] = {
     0x51: "DOWN",
     0x52: "UP",
     # Num Lock and Numpad (0x53-0x63)
-    0x53: "NUM_LOCK",
-    0x54: "KP_DIV",
-    0x55: "KP_MULT",
+    0x53: "KP_NUMLOCK",
+    0x54: "KP_DIVIDE",  # Keypad divide - ZMK uses KP_DIVIDE or KP_SLASH
+    0x55: "KP_MULTIPLY",
     0x56: "KP_MINUS",
     0x57: "KP_PLUS",
     0x58: "KP_ENTER",
@@ -409,74 +409,66 @@ def keycode_with_modifiers_name(param: int) -> Optional[str]:
 
     # SHIFT + key mappings (modifier 0x02)
     # These produce shifted symbols: SHIFT + N1 = !
+    # ZMK defines all of these in include/dt-bindings/zmk/keys.h
     shift_mappings = {
-        0x1E: "EXCL",  # SHIFT + N1 = !
-        0x1F: "AT",  # SHIFT + N2 = @
-        0x20: "HASH",  # SHIFT + N3 = #
-        0x21: "DOLLAR",  # SHIFT + N4 = $
-        0x22: "PRCNT",  # SHIFT + N5 = %
-        0x23: "CARET",  # SHIFT + N6 = ^
-        0x24: "AMPS",  # SHIFT + N7 = &
-        0x25: "ASTRK",  # SHIFT + N8 = *
-        0x26: "LPAR",  # SHIFT + N9 = (
-        0x27: "RPAR",  # SHIFT + N0 = )
-        0x2D: "UNDERSCORE",  # SHIFT + MINUS = _
-        0x2E: "PLUS",  # SHIFT + EQUAL = +
-        0x2F: "LCURLEY",  # SHIFT + LBKT = {
-        0x30: "RCURLEY",  # SHIFT + RBKT = }
-        0x31: "PIPE",  # SHIFT + BSLH = |
-        0x33: "COLON",  # SHIFT + SEMI = :
-        0x34: "DQT",  # SHIFT + SQT = "
-        0x35: "TILDE",  # SHIFT + GRAVE = ~
-        0x36: "LT",  # SHIFT + COMMA = <
-        0x37: "GT",  # SHIFT + DOT = >
-        0x38: "QM",  # SHIFT + SLASH = ?
+        0x1E: "EXCL",  # SHIFT + N1 = ! (VALID: EXCLAMATION/EXCL/BANG)
+        0x1F: "AT",  # SHIFT + N2 = @ (VALID: AT_SIGN/AT/ATSN)
+        0x20: "HASH",  # SHIFT + N3 = # (VALID: HASH/POUND)
+        0x21: "DOLLAR",  # SHIFT + N4 = $ (VALID: DOLLAR/DLLR)
+        0x22: "PRCNT",  # SHIFT + N5 = % (VALID: PERCENT/PRCNT/PRCT)
+        0x23: "CARET",  # SHIFT + N6 = ^ (VALID: CARET/CRRT)
+        0x24: "AMPS",  # SHIFT + N7 = & (VALID: AMPERSAND/AMPS)
+        0x25: "ASTRK",  # SHIFT + N8 = * (VALID: ASTERISK/ASTRK/STAR)
+        0x26: "LPAR",  # SHIFT + N9 = ( (VALID: LEFT_PARENTHESIS/LPAR/LPRN)
+        0x27: "RPAR",  # SHIFT + N0 = ) (VALID: RIGHT_PARENTHESIS/RPAR/RPRN)
+        0x2D: "UNDERSCORE",  # SHIFT + MINUS = _ (VALID: UNDERSCORE/UNDER)
+        0x2E: "PLUS",  # SHIFT + EQUAL = + (VALID)
+        0x2F: "LEFT_BRACE",  # SHIFT + LBKT = { (VALID: LEFT_BRACE/LBRC/LCUR)
+        0x30: "RIGHT_BRACE",  # SHIFT + RBKT = } (VALID: RIGHT_BRACE/RBRC/RCUR)
+        0x31: "PIPE",  # SHIFT + BSLH = | (VALID)
+        0x33: "COLON",  # SHIFT + SEMI = : (VALID: COLON/COLN)
+        0x34: "DQT",  # SHIFT + SQT = " (VALID: DOUBLE_QUOTES/DQT)
+        0x35: "TILDE",  # SHIFT + GRAVE = ~ (VALID: TILDE/TILD)
+        0x36: "LT",  # SHIFT + COMMA = < (VALID: LESS_THAN/LT/LABT)
+        0x37: "GT",  # SHIFT + DOT = > (VALID: GREATER_THAN/GT/RABT)
+        0x38: "QUESTION",  # SHIFT + FSLH = ? (VALID: QUESTION/QMARK)
+    }
+
+    # Base key mappings for shifted keys that don't have a direct ZMK keycode
+    # These will be output as LS(base_key) in the keymap
+    # Currently ALL shifted keys have valid ZMK definitions, so this is empty
+    shift_base_key_fallback = {
+        # All shifted keys now have valid ZMK definitions
+    }
+
+    # Base key mappings for shifted keys that don't have a direct ZMK keycode
+    # These will be output as LS(base_key) in the keymap
+    shift_base_key_fallback = {
+        0x2D: "MINUS",  # _ = SHIFT + MINUS
+        0x2F: "LBKT",  # { = SHIFT + LBKT
+        0x30: "RBKT",  # } = SHIFT + RBKT
+        0x33: "SEMI",  # : = SHIFT + SEMI
+        0x35: "GRAVE",  # ~ = SHIFT + GRAVE
+        0x36: "COMMA",  # < = SHIFT + COMMA
+        0x37: "DOT",  # > = SHIFT + DOT
+        0x38: "FSLH",  # ? = SHIFT + FSLH
     }
 
     # Check for SHIFT modifier (modifier byte 0x02)
     if modifier == 0x02 and usage_page == 0x07:
-        return shift_mappings.get(usage_code)
+        # First check if we have a valid shifted keycode name
+        if usage_code in shift_mappings:
+            return shift_mappings[usage_code]
+        # Otherwise, return the LS() wrapped base key
+        if usage_code in shift_base_key_fallback:
+            return f"LS({shift_base_key_fallback[usage_code]})"
+        # Unknown shifted key - return the base key name with LS()
+        base_name = HID_KEYCODES.get(usage_code, f"0x{usage_code:02X}")
+        return f"LS({base_name})"
 
     # Check for Consumer page (usage_page 0x05 or 0x0C)
     if usage_page in (0x05, 0x0C):
         return CONSUMER_KEYCODES.get(usage_code, f"C(0x{usage_code:03X})")
-
-    return None
-
-    # SHIFT + key mappings (common shifted symbols)
-    shift_mappings = {
-        0x1E: "EXCL",  # SHIFT + N1 = !
-        0x1F: "AT",  # SHIFT + N2 = @
-        0x20: "HASH",  # SHIFT + N3 = #
-        0x21: "DOLLAR",  # SHIFT + N4 = $
-        0x22: "PRCNT",  # SHIFT + N5 = %
-        0x23: "CARET",  # SHIFT + N6 = ^
-        0x24: "AMPS",  # SHIFT + N7 = &
-        0x25: "ASTRK",  # SHIFT + N8 = *
-        0x26: "LPAR",  # SHIFT + N9 = (
-        0x27: "RPAR",  # SHIFT + N0 = )
-        0x2D: "UNDERSCORE",  # SHIFT + MINUS = _
-        0x2E: "PLUS",  # SHIFT + EQUAL = +
-        0x2F: "LCURLEY",  # SHIFT + LBKT = {
-        0x30: "RCURLEY",  # SHIFT + RBKT = }
-        0x31: "PIPE",  # SHIFT + BSLH = |
-        0x33: "COLON",  # SHIFT + SEMI = :
-        0x34: "DQT",  # SHIFT + SQT = "
-        0x35: "TILDE",  # SHIFT + GRAVE = ~
-        0x36: "LT",  # SHIFT + COMMA = <
-        0x37: "GT",  # SHIFT + DOT = >
-        0x38: "QM",  # SHIFT + SLASH = ?
-    }
-
-    # ALT + key mappings (common alt symbols)
-    alt_mappings = {
-        # These would depend on the keyboard layout
-    }
-
-    if modifiers & 0x02:  # SHIFT
-        return shift_mappings.get(base_keycode)
-    elif modifiers & 0x04:  # ALT
-        return alt_mappings.get(base_keycode)
 
     return None
 
