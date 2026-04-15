@@ -1,12 +1,20 @@
 #!/usr/bin/env python3
 """
-ZMK Studio CLI - Interfaz simple para leer/escribir configuración del teclado
+ZMK Studio CLI - Interfaz simple para trabajar con archivos de keymap
+
+Esta herramienta está diseñada para LEER keymaps del teclado y TRABAJAR con archivos JSON.
 
 Comandos:
-  extract    - Extrae keymap del teclado a un archivo
-  set        - Escribe un keymap al teclado (desde archivo extraído)
-  compare     - Compara dos keymaps
+  extract    - Extrae keymap del teclado a un archivo JSON
+  compare     - Compara dos archivos de keymap
   list-behaviors - Lista los behaviors disponibles
+
+Flujo de trabajo recomendado para modificar keymaps:
+  1. Extraer keymap actual → python zmk_studio_cli.py extract --format json --output actual.json
+  2. Editar en keymap-editor web → https://nickcoutsos.github.io/keymap-editor/
+  3. Commit a GitHub → git add, git commit
+  4. Compilar firmware → GitHub Actions se activa automáticamente
+  5. Descargar y flashear
 """
 
 import argparse
@@ -22,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 def cmd_extract(args):
     """Extrae keymap del teclado."""
-    print(f"[*] Extrayendo keymap del teclado...")
+    print("[*] Extrayendo keymap del teclado...")
     print(f"    Puerto: {args.port if args.port else 'auto-detect'}")
     print(f"    Formato: {args.format}")
     print(f"    Salida: {args.output}")
@@ -49,39 +57,9 @@ def cmd_extract(args):
     return 0
 
 
-def cmd_set(args):
-    """Escribe un keymap al teclado."""
-    print(f"[*] Escribiendo keymap al teclado...")
-    print(f"    Puerto: {args.port if args.port else 'auto-detect'}")
-    print(f"    Entrada: {args.input}")
-
-    if not Path(args.input).exists():
-        print(f"[X] Error: Archivo no encontrado: {args.input}")
-        return 1
-
-    # Cargar keymap
-    with open(args.input, "r") as f:
-        input_keymap = json.load(f)
-
-    print(f"    Capas: {len(input_keymap.get('layers', []))}")
-
-    # Para escribir, necesitamos los bytes exactos del formato protobuf
-    # Por ahora, solo mostramos advertencia
-    print("[!] Nota: La escritura requiere keymap en formato binario protobuf")
-    print("    El protocolo soporta set_keymap, pero requiere los bytes exactos")
-    print("    Solución actual:")
-    print("    1. Extrae el keymap del teclado (comando 'extract')")
-    print("    2. Edita el archivo JSON generado")
-    print("    3. Usa ZMK Studio web para subir el archivo modificado")
-    print("")
-    print("    Futuro: Agregare conversion de JSON->protobuf")
-
-    return 0
-
-
 def cmd_compare(args):
     """Compara dos keymaps."""
-    print(f"[*] Comparando keymaps...")
+    print("[*] Comparando keymaps...")
     print(f"    Archivo 1: {args.file1}")
     print(f"    Archivo 2: {args.file2}")
 
@@ -118,7 +96,7 @@ def cmd_compare(args):
 
 def cmd_list_behaviors(args):
     """Lista behaviors disponibles."""
-    print(f"[*] Listando behaviors del teclado...")
+    print("[*] Listando behaviors del teclado...")
 
     extractor = KeymapExtractor(port=args.port, debug=args.verbose)
 
@@ -156,15 +134,27 @@ def cmd_list_behaviors(args):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Herramienta CLI para ZMK Studio - Leer y escribir configuración del teclado",
+        description="Herramienta CLI para trabajar con keymaps ZMK (SOLO LECTURA)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Ejemplo de flujo de trabajo para modificar keymap:
+  1. python zmk_studio_cli.py extract --format json --output actual.json
+  2. Abrir https://nickcoutsos.github.io/keymap-editor/
+  3. Conectar tu repositorio: netcraker01/zmk-config-lily58
+  4. Editar keymap visualmente
+  5. Guardar cambios en GitHub (se hace commit automatico)
+  6. Esperar compilacion en GitHub Actions
+  7. Descargar UF2 y flashear al teclado
+
+NOTA: Esta herramienta solo LEE keymaps. Para modificar, usa keymap-editor web.
+        """,
     )
 
     # Comandos
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     # Extract
-    parser_extract = subparsers.add_parser("extract", help="Extrae keymap del teclado")
+    parser_extract = subparsers.add_parser("extract", help="Extraer keymap del teclado")
     parser_extract.add_argument(
         "-p",
         "--port",
@@ -193,30 +183,17 @@ def main():
         "--no-unlock",
         action="store_false",
         dest="unlock",
-        help="No desbloquear automáticamente el teclado",
-    )
-
-    # Set
-    parser_set = subparsers.add_parser("set", help="Escribe keymap al teclado")
-    parser_set.add_argument(
-        "-p",
-        "--port",
-        type=str,
-        default="auto",
-        help="Puerto serie (default: auto-detect)",
-    )
-    parser_set.add_argument(
-        "input", type=str, help="Archivo JSON de keymap (extraído previamente)"
+        help="No desbloquear automaticamente el teclado",
     )
 
     # Compare
-    parser_compare = subparsers.add_parser("compare", help="Compara dos keymaps")
+    parser_compare = subparsers.add_parser("compare", help="Comparar dos keymaps")
     parser_compare.add_argument("file1", type=str, help="Primer archivo de keymap")
     parser_compare.add_argument("file2", type=str, help="Segundo archivo de keymap")
 
     # List behaviors
     parser_list = subparsers.add_parser(
-        "list-behaviors", help="Lista behaviors del teclado"
+        "list-behaviors", help="Listar behaviors del teclado"
     )
     parser_list.add_argument(
         "-p",
@@ -229,7 +206,7 @@ def main():
         "-r",
         "--refresh",
         action="store_true",
-        help="Refrescar desde el firmware (no usar caché)",
+        help="Refrescar desde el firmware (no usar cache)",
     )
     parser_list.add_argument(
         "-v", "--verbose", action="store_true", help="Mostrar todos los behaviors"
@@ -246,8 +223,6 @@ def main():
     # Ejecutar comando
     if args.command == "extract":
         return cmd_extract(args)
-    elif args.command == "set":
-        return cmd_set(args)
     elif args.command == "compare":
         return cmd_compare(args)
     elif args.command == "list-behaviors":
