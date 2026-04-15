@@ -107,26 +107,10 @@ class DevicetreeFormatter:
         # Format parameters based on behavior
         if behavior_name == "kp":
             # Key press: &kp KEY
-            from zmk_studio.mapping.keycodes import (
-                keycode_to_name,
-                KEYCODE_BASE,
-                CONSUMER_KEYCODES,
-            )
+            from zmk_studio.mapping.keycodes import keycode_to_name, KEYCODE_BASE
 
-            # Consumer keys (media keys) - these use C_NAME format
-            if param1 >= 0x00C00 and param1 < 0x01000:
-                consumer_usage = param1 - 0x00C00
-                consumer_name = CONSUMER_KEYCODES.get(
-                    consumer_usage, f"C(0x{param1:04X})"
-                )
-                return f"&kp {consumer_name}"
-
-            # Regular HID keycode - param1 should already include KEYCODE_BASE offset
-            # If it seems like a raw HID usage (small number), add the offset
-            if param1 < KEYCODE_BASE:
-                key_name = keycode_to_name(param1 + KEYCODE_BASE).replace("kp ", "")
-            else:
-                key_name = keycode_to_name(param1).replace("kp ", "")
+            # Use keycode_to_name which handles all formats
+            key_name = keycode_to_name(param1)
             return f"&kp {key_name}"
 
         elif behavior_name == "mo":

@@ -188,23 +188,29 @@ def keycode_to_name(param: int, behavior: str = "kp") -> str:
     Convert a ZMK keycode parameter to a human-readable name.
 
     Args:
-        param: The keycode parameter (e.g., 0x70004 for A, 0x0CE2 for C_MUTE)
-        behavior: The behavior type (e.g., "kp", "cp", "rgb_ug")
+        param: The keycode parameter (e.g., 0x70004 for A, 0x20001E for EXCL)
+        behavior: The behavior name (default "kp" for key press)
 
     Returns:
-        A human-readable name (e.g., "A", "C_MUTE")
+        A human-readable name (e.g., "A", "kp C_MUTE", "EXCL")
 
     Examples:
         >>> keycode_to_name(0x70004)
         'A'
-        >>> keycode_to_name(0x0CE2, behavior="cp")  # Consumer 0xE2 = MUTE
-        'cp C_MUTE'
+        >>> keycode_to_name(0x20001E)  # SHIFT + N1
+        'EXCL'
+        >>> keycode_to_name(0x500E2)  # Consumer MUTE
+        'C_MUTE'
     """
+    # First check for modified keycodes (usage_page in bits 20-23)
+    modified_name = keycode_with_modifiers_name(param)
+    if modified_name:
+        return modified_name
+
     # HID Keyboard Usage Page: param - 0x70000 = HID usage
     if param >= KEYCODE_BASE:
         hid = param - KEYCODE_BASE
         name = HID_KEYCODES.get(hid, f"C(0x{hid:02X})")
-        # Remove "kp " prefix if behavior is "kp" to avoid "kp A" format
         if behavior == "kp":
             return name
         return f"{behavior} {name}"
@@ -322,6 +328,159 @@ def get_consumer_usage(param: int) -> Optional[int]:
     return None
 
 
+def decode_modified_keycode(param: int) -> tuple[int, int]:
+    """
+    Decode a keycode that may have modifiers applied.
+
+    ZMK encodes modified keycodes by placing modifier flags in the upper bits.
+    Format: (modifiers << 24) | keycode
+
+    Common modifier flags:
+    - 0x02: SHIFT (LSHFT)
+    - 0x04: ALT (LALT)
+    - 0x08: GUI (LGUI)
+    - 0x01: CTRL (LCTRL)
+
+    For example:
+    - 0x20001E = SHIFT + N1 = EXCL (!)
+    - 0x200033 = SHIFT + SEMI = COLON (:)
+
+    Args:
+        param: The keycode parameter (may include modifiers)
+
+    Returns:
+        Tuple of (base_keycode, modifier_flags)
+        base_keycode is the raw keycode (e.g., 0x1E for N1)
+        modifier_flags is the modifier bitmask (e.g., 0x02 for SHIFT)
+    """
+    modifier_flags = (param >> 24) & 0xFF
+    base_keycode = param & 0xFFFFFF
+
+    # Check if this is a modified keycode (modifier byte > 0)
+    if modifier_flags == 0:
+        # No modifiers, might still be a modified key if high bits are set
+        # Check for pattern where usage page != 0x07
+        usage_page = (param >> 16) & 0xFF
+        if usage_page == 0x07:
+            # Normal HID keycode
+            return base_keycode, 0
+        else:
+            # Different encoding - return as-is
+            return param, 0
+
+    return base_keycode, modifier_flags
+
+
+def keycode_with_modifiers_name(param: int) -> Optional[str]:
+    """
+    Convert a keycode with modifiers or usage page to a human-readable name.
+
+    This handles:
+    - Modified keycodes like SHIFT+N1 = EXCL
+    - Consumer keycodes with usage page prefix
+
+    ZMK encoding format:
+    - Bits 24-31: Modifier flags (e.g., 0x02 = SHIFT)
+    - Bits 16-23: Usage page (e.g., 0x07 = HID Keyboard, 0x05 = Consumer)
+    - Bits 0-15: Usage code
+
+    Common values:
+    - 0x0207001E: SHIFT + HID_KEYBOARD + N1 = EXCL
+    - 0x00070004: HID_KEYBOARD + A = A
+    - 0x000500E2: Consumer + MUTE = C_MUTE
+
+    Args:
+        param: The keycode parameter (may include usage page)
+
+    Returns:
+        Human-readable name (e.g., "EXCL", "AT", "C_MUTE")
+        or None if not a recognized modified keycode
+
+    Examples:
+        >>> keycode_with_modifiers_name(0x0207001E)  # SHIFT + N1
+        'EXCL'
+        >>> keycode_with_modifiers_name(0x000500E2)  # Consumer MUTE
+        'C_MUTE'
+    """
+    # Extract components
+    modifier = (param >> 24) & 0xFF
+    usage_page = (param >> 16) & 0xFF
+    usage_code = param & 0xFFFF
+
+    # SHIFT + key mappings (modifier 0x02)
+    # These produce shifted symbols: SHIFT + N1 = !
+    shift_mappings = {
+        0x1E: "EXCL",  # SHIFT + N1 = !
+        0x1F: "AT",  # SHIFT + N2 = @
+        0x20: "HASH",  # SHIFT + N3 = #
+        0x21: "DOLLAR",  # SHIFT + N4 = $
+        0x22: "PRCNT",  # SHIFT + N5 = %
+        0x23: "CARET",  # SHIFT + N6 = ^
+        0x24: "AMPS",  # SHIFT + N7 = &
+        0x25: "ASTRK",  # SHIFT + N8 = *
+        0x26: "LPAR",  # SHIFT + N9 = (
+        0x27: "RPAR",  # SHIFT + N0 = )
+        0x2D: "UNDERSCORE",  # SHIFT + MINUS = _
+        0x2E: "PLUS",  # SHIFT + EQUAL = +
+        0x2F: "LCURLEY",  # SHIFT + LBKT = {
+        0x30: "RCURLEY",  # SHIFT + RBKT = }
+        0x31: "PIPE",  # SHIFT + BSLH = |
+        0x33: "COLON",  # SHIFT + SEMI = :
+        0x34: "DQT",  # SHIFT + SQT = "
+        0x35: "TILDE",  # SHIFT + GRAVE = ~
+        0x36: "LT",  # SHIFT + COMMA = <
+        0x37: "GT",  # SHIFT + DOT = >
+        0x38: "QM",  # SHIFT + SLASH = ?
+    }
+
+    # Check for SHIFT modifier (modifier byte 0x02)
+    if modifier == 0x02 and usage_page == 0x07:
+        return shift_mappings.get(usage_code)
+
+    # Check for Consumer page (usage_page 0x05 or 0x0C)
+    if usage_page in (0x05, 0x0C):
+        return CONSUMER_KEYCODES.get(usage_code, f"C(0x{usage_code:03X})")
+
+    return None
+
+    # SHIFT + key mappings (common shifted symbols)
+    shift_mappings = {
+        0x1E: "EXCL",  # SHIFT + N1 = !
+        0x1F: "AT",  # SHIFT + N2 = @
+        0x20: "HASH",  # SHIFT + N3 = #
+        0x21: "DOLLAR",  # SHIFT + N4 = $
+        0x22: "PRCNT",  # SHIFT + N5 = %
+        0x23: "CARET",  # SHIFT + N6 = ^
+        0x24: "AMPS",  # SHIFT + N7 = &
+        0x25: "ASTRK",  # SHIFT + N8 = *
+        0x26: "LPAR",  # SHIFT + N9 = (
+        0x27: "RPAR",  # SHIFT + N0 = )
+        0x2D: "UNDERSCORE",  # SHIFT + MINUS = _
+        0x2E: "PLUS",  # SHIFT + EQUAL = +
+        0x2F: "LCURLEY",  # SHIFT + LBKT = {
+        0x30: "RCURLEY",  # SHIFT + RBKT = }
+        0x31: "PIPE",  # SHIFT + BSLH = |
+        0x33: "COLON",  # SHIFT + SEMI = :
+        0x34: "DQT",  # SHIFT + SQT = "
+        0x35: "TILDE",  # SHIFT + GRAVE = ~
+        0x36: "LT",  # SHIFT + COMMA = <
+        0x37: "GT",  # SHIFT + DOT = >
+        0x38: "QM",  # SHIFT + SLASH = ?
+    }
+
+    # ALT + key mappings (common alt symbols)
+    alt_mappings = {
+        # These would depend on the keyboard layout
+    }
+
+    if modifiers & 0x02:  # SHIFT
+        return shift_mappings.get(base_keycode)
+    elif modifiers & 0x04:  # ALT
+        return alt_mappings.get(base_keycode)
+
+    return None
+
+
 # ─── Module Info ──────────────────────────────────────────────────────────
 
 __all__ = [
@@ -336,4 +495,6 @@ __all__ = [
     "is_consumer_keycode",
     "get_hid_usage",
     "get_consumer_usage",
+    "decode_modified_keycode",
+    "keycode_with_modifiers_name",
 ]

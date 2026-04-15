@@ -16,9 +16,9 @@
 		BASE_layer {
 			bindings = <
 				    &kp ESC    &kp N1    &kp N2    &kp N3    &kp N4    &kp N5                         &kp N6    &kp N7    &kp N8    &kp N9    &kp N0    &kp BACKSPACE
-				    &kp TAB    &kp Q    &kp W    &kp E    &kp R    &kp T                         &kp Y    &kp U    &kp I    &kp O    &kp P    &mt LCTRL(LALT(LGUI(RSHFT))) C(0x200002D)
+				    &kp TAB    &kp Q    &kp W    &kp E    &kp R    &kp T                         &kp Y    &kp U    &kp I    &kp O    &kp P    &mt LCTRL(LALT(LGUI(RSHFT))) UNDERSCORE
 				    &kp LSHFT    &kp A    &kp S    &kp D    &kp F    &kp G                         &kp H    &kp J    &kp K    &kp L    &kp SEMI    &kp KP_DIV
-				    &kp LCTRL    &kp Z    &kp X    &kp C    &kp V    &kp B                         &kp C(0x500E2)    &rgb_ug 0 0    &kp N    &kp M    &kp COMMA    &kp DOT
+				    &kp LCTRL    &kp Z    &kp X    &kp C    &kp V    &kp B                         &kp C_MUTE    &rgb_ug 0 0    &kp N    &kp M    &kp COMMA    &kp DOT
 				    &kp SLASH    &kp ENTER    &kp LGUI    &kp LALT    &mo 1    &kp SPACE                         &kp SPACE    &mo 2    &kp SQT    &kp DEL
 			>;
 		};
@@ -27,18 +27,18 @@
 			bindings = <
 				    &bt BT_CLR    &bt BT_SEL 0    &bt BT_SEL 1    &bt BT_SEL 2    &bt BT_SEL 3    &bt BT_SEL 4                         &kp F7    &kp F8    &kp F9    &kp F10    &kp F11    &kp F12
 				    &kp F1    &kp F2    &kp F3    &kp F4    &kp F5    &kp F6                         &trans    &kp HOME    &kp UP    &kp END    &kp PG_UP    &trans
-				    &kt CAPS    &kp C(0x200001E)    &kp C(0x200001F)    &kp C(0x2000020)    &kp C(0x2000021)    &kp C(0x2000022)                         &trans    &kp LEFT    &kp DOWN    &kp RIGHT    &kp PG_DN    &trans
-				    &trans    &ext_power 1 0    &ext_power 0 0    &ext_power 2 0    &trans    &trans                         &trans    &trans    &trans    &kp MINUS    &kp C(0x200002E)    &kp C(0x200002F)
-				    &kp C(0x2000030)    &kp C(0x2000031)    &trans    &trans    &trans    &trans                         &trans    &trans    &trans    &trans
+				    &kt CAPS    &kp EXCL    &kp AT    &kp HASH    &kp DOLLAR    &kp PRCNT                         &trans    &kp LEFT    &kp DOWN    &kp RIGHT    &kp PG_DN    &trans
+				    &trans    &ext_power 1 0    &ext_power 0 0    &ext_power 2 0    &trans    &trans                         &trans    &trans    &trans    &kp MINUS    &kp PLUS    &kp LCURLEY
+				    &kp RCURLEY    &kp PIPE    &trans    &trans    &trans    &trans                         &trans    &trans    &trans    &trans
 			>;
 		};
 
 		SYM_layer {
 			bindings = <
 				    &trans    &kp C(0x4000001E)    &kp C(0x4000001F)    &kp C(0x40000020)    &kp C(0x40000021)    &kp C(0x40000022)                         &kp C(0x40000023)    &kp C(0x40000024)    &trans    &trans    &trans    &trans
-				    &kp GRAVE    &kp N1    &kp N2    &kp N3    &kp N4    &kp N5                         &kp N6    &kp N7    &kp N8    &kp N9    &kp N0    &kp C(0x2000031)
+				    &kp GRAVE    &kp N1    &kp N2    &kp N3    &kp N4    &kp N5                         &kp N6    &kp N7    &kp N8    &kp N9    &kp N0    &kp PIPE
 				    &kp F1    &kp F2    &kp F3    &kp F4    &kp F5    &kp F6                         &trans    &kp MINUS    &kp EQUAL    &kp LBKT    &kp RBKT    &kp BSLH
-				    &kp F7    &kp F8    &kp F9    &kp F10    &kp F11    &kp F12                         &trans    &trans    &trans    &kp SEMI    &kp SQT    &kp C(0x2000034)
+				    &kp F7    &kp F8    &kp F9    &kp F10    &kp F11    &kp F12                         &trans    &trans    &trans    &kp SEMI    &kp SQT    &kp DQT
 				    &kp COMMA    &trans    &trans    &trans    &trans    &trans                         &trans    &trans    &trans    &trans
 			>;
 		};
