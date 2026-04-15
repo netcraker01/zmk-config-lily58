@@ -8,6 +8,8 @@
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/keys.h>
 #include <dt-bindings/zmk/bt.h>
+#include <dt-bindings/zmk/ext_power.h>
+#include <dt-bindings/zmk/rgb.h>
 
 / {
 	keymap {
@@ -16,10 +18,10 @@
 		BASE_layer {
 			bindings = <
 				    &kp ESC    &kp N1    &kp N2    &kp N3    &kp N4    &kp N5                         &kp N6    &kp N7    &kp N8    &kp N9    &kp N0    &kp BACKSPACE
-				    &kp TAB    &kp Q    &kp W    &kp E    &kp R    &kp T                         &kp Y    &kp U    &kp I    &kp O    &kp P    &mt LCTRL(LALT(LGUI(RSHFT))) UNDERSCORE
-				    &kp LSHFT    &kp A    &kp S    &kp D    &kp F    &kp G                         &kp H    &kp J    &kp K    &kp L    &kp SEMI    &kp KP_DIV
-				    &kp LCTRL    &kp Z    &kp X    &kp C    &kp V    &kp B                         &kp C_MUTE    &rgb_ug 0 0    &kp N    &kp M    &kp COMMA    &kp DOT
-				    &kp SLASH    &kp ENTER    &kp LGUI    &kp LALT    &mo 1    &kp SPACE                         &kp SPACE    &mo 2    &kp SQT    &kp DEL
+				    &kp TAB    &kp Q    &kp W    &kp E    &kp R    &kp T                         &kp Y    &kp U    &kp I    &kp O    &kp P    &mt (LCTRL LALT LGUI RSHFT) UNDERSCORE
+				    &kp LSHFT    &kp A    &kp S    &kp D    &kp F    &kp G                         &kp H    &kp J    &kp K    &kp L    &kp SEMI    &kp KP_DIVIDE
+				    &kp LCTRL    &kp Z    &kp X    &kp C    &kp V    &kp B                         &kp C_MUTE    &rgb_ug RGB_TOG    &kp N    &kp M    &kp COMMA    &kp DOT
+				    &kp FSLH    &kp ENTER    &kp LGUI    &kp LALT    &mo 1    &kp SPACE                         &kp SPACE    &mo 2    &kp SQT    &kp DEL
 			>;
 		};
 
@@ -28,14 +30,14 @@
 				    &bt BT_CLR    &bt BT_SEL 0    &bt BT_SEL 1    &bt BT_SEL 2    &bt BT_SEL 3    &bt BT_SEL 4                         &kp F7    &kp F8    &kp F9    &kp F10    &kp F11    &kp F12
 				    &kp F1    &kp F2    &kp F3    &kp F4    &kp F5    &kp F6                         &trans    &kp HOME    &kp UP    &kp END    &kp PG_UP    &trans
 				    &kt CAPS    &kp EXCL    &kp AT    &kp HASH    &kp DOLLAR    &kp PRCNT                         &trans    &kp LEFT    &kp DOWN    &kp RIGHT    &kp PG_DN    &trans
-				    &trans    &ext_power 1 0    &ext_power 0 0    &ext_power 2 0    &trans    &trans                         &trans    &trans    &trans    &kp MINUS    &kp PLUS    &kp LCURLEY
-				    &kp RCURLEY    &kp PIPE    &trans    &trans    &trans    &trans                         &trans    &trans    &trans    &trans
+				    &trans    &ext_power EP_ON    &ext_power EP_OFF    &ext_power EP_TOG    &trans    &trans                         &trans    &trans    &trans    &kp MINUS    &kp PLUS    &kp LEFT_BRACE
+				    &kp RIGHT_BRACE    &kp PIPE    &trans    &trans    &trans    &trans                         &trans    &trans    &trans    &trans
 			>;
 		};
 
 		SYM_layer {
 			bindings = <
-				    &trans    &kp C(0x4000001E)    &kp C(0x4000001F)    &kp C(0x40000020)    &kp C(0x40000021)    &kp C(0x40000022)                         &kp C(0x40000023)    &kp C(0x40000024)    &trans    &trans    &trans    &trans
+				    &trans    &kp RA(N1)    &kp RA(N2)    &kp RA(N3)    &kp RA(N4)    &kp RA(N5)                         &kp RA(N6)    &kp RA(N7)    &trans    &trans    &trans    &trans
 				    &kp GRAVE    &kp N1    &kp N2    &kp N3    &kp N4    &kp N5                         &kp N6    &kp N7    &kp N8    &kp N9    &kp N0    &kp PIPE
 				    &kp F1    &kp F2    &kp F3    &kp F4    &kp F5    &kp F6                         &trans    &kp MINUS    &kp EQUAL    &kp LBKT    &kp RBKT    &kp BSLH
 				    &kp F7    &kp F8    &kp F9    &kp F10    &kp F11    &kp F12                         &trans    &trans    &trans    &kp SEMI    &kp SQT    &kp DQT
@@ -46,8 +48,8 @@
 		ADJUST_layer {
 			bindings = <
 				    &bt BT_CLR    &bt BT_SEL 0    &bt BT_SEL 1    &bt BT_SEL 2    &bt BT_SEL 3    &bt BT_SEL 4                         &kp F1    &kp F2    &kp F3    &kp F4    &kp F5    &kp PSCRN
-				    &ext_power 2 0    &rgb_ug 4 0    &rgb_ug 3 0    &rgb_ug 6 0    &rgb_ug 5 0    &rgb_ug 11 0                         &kp F6    &kp F7    &kp F8    &kp F9    &kp F10    &trans
-				    &trans    &rgb_ug 8 0    &rgb_ug 7 0    &trans    &trans    &trans                         &kp F11    &kp F12    &trans    &trans    &trans    &trans
+				    &ext_power EP_TOG    &rgb_ug RGB_HUD    &rgb_ug RGB_HUI    &rgb_ug RGB_SAD    &rgb_ug RGB_SAI    &rgb_ug RGB_EFF                         &kp F6    &kp F7    &kp F8    &kp F9    &kp F10    &trans
+				    &trans    &rgb_ug RGB_BRD    &rgb_ug RGB_BRI    &trans    &trans    &trans                         &kp F11    &kp F12    &trans    &trans    &trans    &trans
 				    &trans    &trans    &trans    &trans    &trans    &trans                         &trans    &trans    &trans    &trans    &trans    &trans
 				    &trans    &trans    &trans    &trans    &trans    &trans                         &trans    &trans    &trans    &trans
 			>;
