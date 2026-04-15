@@ -89,9 +89,8 @@ def format_modifiers(modifiers: List[str], nested: bool = False) -> str:
     """
     Format a list of modifier names into ZMK syntax.
 
-    ZMK mod-tap uses space-separated modifiers in parentheses:
-    - Single: LCTRL
-    - Multiple: (LCTRL LSHFT LALT)
+    ZMK mod-tap uses NESTED wrappers: LC(LS(LA(LG(key)))).
+    ZMK kp uses the same nested format for modified keys.
 
     Args:
         modifiers: List of modifier names
@@ -102,20 +101,40 @@ def format_modifiers(modifiers: List[str], nested: bool = False) -> str:
 
     Examples:
         >>> format_modifiers(['LCTRL', 'LSHFT'])
-        '(LCTRL LSHFT)'
+        'LC(LS)'
         >>> format_modifiers(['LCTRL'])
-        'LCTRL'
+        'LC'
         >>> format_modifiers(['LCTRL', 'LSHFT', 'LALT'])
-        '(LCTRL LSHFT LALT)'
+        'LC(LS(LA))'
     """
     if not modifiers:
         return ""
 
-    if len(modifiers) == 1:
-        return modifiers[0]
+    # ZMK modifier wrapper names
+    wrapper_map = {
+        "LCTRL": "LC",
+        "LSHFT": "LS",
+        "LSHIFT": "LS",
+        "LALT": "LA",
+        "LGUI": "LG",
+        "RCTRL": "RC",
+        "RSHFT": "RS",
+        "RSHIFT": "RS",
+        "RALT": "RA",
+        "RGUI": "RG",
+    }
 
-    # ZMK mod-tap uses space-separated modifiers in parentheses
-    return "(" + " ".join(modifiers) + ")"
+    # Convert to wrapper names
+    wrappers = [wrapper_map.get(m, m) for m in modifiers]
+
+    if len(wrappers) == 1:
+        return wrappers[0]
+
+    # Build nested wrappers: LC(LS(LA(...)))
+    result = wrappers[-1]
+    for wrapper in reversed(wrappers[:-1]):
+        result = f"{wrapper}({result})"
+    return result
 
 
 def format_modifiers_from_bitmask(value: int) -> str:

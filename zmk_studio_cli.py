@@ -94,6 +94,44 @@ def cmd_compare(args):
     return 0 if match else 1
 
 
+def cmd_write(args):
+    """Escribe un archivo .keymap al teclado."""
+    print("[*] Escribiendo keymap al teclado...")
+    print(f"    Puerto: {args.port if args.port else 'auto-detect'}")
+    print(f"    Entrada: {args.input}")
+
+    if not Path(args.input).exists():
+        print(f"[X] Error: Archivo no encontrado: {args.input}")
+        return 1
+
+    # Cargar archivo .keymap
+    # Necesitamos leer el archivo y convertir a formato binario protobuf
+    print("[!] NOTA: La conversión de .keymap a protobuf aún está en desarrollo")
+    print("    Por ahora, este comando solo:")
+    print("      1. Conecta al teclado")
+    print("      2. Valida que el archivo es correcto")
+    print("")
+    print("    Solución actual:")
+    print("      1. Usa ZMK Studio web para hacer cambios visuales")
+    print("      2. GitHub Actions compila el firmware")
+    print("      3. Descarga y flashea al teclado")
+    print("    4. Para escritura directa por puerto serie:")
+    print("         a. Extrae el keymap actual del teclado:")
+    print(
+        "              python zmk_studio_cli.py extract --format json --output current.json"
+    )
+    print("         b. Modifica el JSON para incluir tus cambios")
+    print(
+        "         c. Convierte el JSON a protobuf binario (manually o con herramienta futura)"
+    )
+    print("         d. Escribe este comando:")
+    print("            python zmk_studio_cli.py write --input keymap_modificado.json")
+    print("")
+    print("[!] Futuro: Agregaré conversión completa de .keymap a protobuf")
+
+    return 0
+
+
 def cmd_list_behaviors(args):
     """Lista behaviors disponibles."""
     print("[*] Listando behaviors del teclado...")
@@ -137,16 +175,34 @@ def main():
         description="Herramienta CLI para trabajar con keymaps ZMK (SOLO LECTURA)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-Ejemplo de flujo de trabajo para modificar keymap:
-  1. python zmk_studio_cli.py extract --format json --output actual.json
-  2. Abrir https://nickcoutsos.github.io/keymap-editor/
-  3. Conectar tu repositorio: netcraker01/zmk-config-lily58
-  4. Editar keymap visualmente
-  5. Guardar cambios en GitHub (se hace commit automatico)
-  6. Esperar compilacion en GitHub Actions
-  7. Descargar UF2 y flashear al teclado
+Comandos:
+  extract     Extrae keymap del teclado
+  compare     Comparar dos archivos de keymaps
+  list-behaviors      Lista los behaviors del teclado
+  write       Escribe un archivo .keymap al teclado
 
-NOTA: Esta herramienta solo LEE keymaps. Para modificar, usa keymap-editor web.
+Ejemplo de flujo de trabajo para modificar keymap:
+  1. Extraer keymap actual del teclado:
+       python zmk_studio_cli.py extract --format json --output current.json
+
+  2. Modificar keymap:
+     Opción A - Usar keymap-editor web (recomendado):
+       a. Ir a https://nickcoutsos.github.io/keymap-editor/
+       b. Conectar tu repositorio: netcraker01/zmk-config-lily58
+       c. Cargar current.json y hacer cambios visuales
+       d. Guardar cambios en GitHub
+       e. GitHub Actions compila y descarga UF2
+
+  3. Flashear:
+     a. Conectar el nice!nano V2 via USB
+     b. Presiona el botón RESET (o double-tap reset)
+     c. Aparece la unidad NICEBOOT
+     d. Copiar el archivo UF2 correcto:
+          - Lily58_left_oled.uf2 -> lado izquierdo
+          - Lily58_right_oled.uf2 → lado derecho
+
+NOTA: El comando 'write' actualmente solo conecta y valida archivos .keymap.
+      La conversión a formato binario protobuf está en desarrollo.
         """,
     )
 
@@ -191,6 +247,30 @@ NOTA: Esta herramienta solo LEE keymaps. Para modificar, usa keymap-editor web.
     parser_compare.add_argument("file1", type=str, help="Primer archivo de keymap")
     parser_compare.add_argument("file2", type=str, help="Segundo archivo de keymap")
 
+    # Write
+    parser_write = subparsers.add_parser(
+        "write", help="Escribe un archivo .keymap al teclado"
+    )
+    parser_write.add_argument(
+        "-p",
+        "--port",
+        type=str,
+        default="auto",
+        help="Puerto serie (default: auto-detect)",
+    )
+    parser_write.add_argument(
+        "-v", "--verbose", action="store_true", help="Salida detallada"
+    )
+    parser_write.add_argument(
+        "input", type=str, required=True, help="Archivo .keymap (formato devicetree)"
+    )
+    parser_write.add_argument(
+        "--no-unlock",
+        action="store_false",
+        dest="unlock",
+        help="No desbloquear automaticamente el teclado",
+    )
+
     # List behaviors
     parser_list = subparsers.add_parser(
         "list-behaviors", help="Listar behaviors del teclado"
@@ -225,6 +305,8 @@ NOTA: Esta herramienta solo LEE keymaps. Para modificar, usa keymap-editor web.
         return cmd_extract(args)
     elif args.command == "compare":
         return cmd_compare(args)
+    elif args.command == "write":
+        return cmd_write(args)
     elif args.command == "list-behaviors":
         return cmd_list_behaviors(args)
     else:

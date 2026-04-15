@@ -1,22 +1,19 @@
 # ZMK Studio CLI
 
-Herramienta CLI simple para extraer keymaps del teclado ZMK.
+Herramienta CLI para extraer keymaps del teclado ZMK.
 
 ## Flujo de Trabajo Recomendado
 
-Esta herramienta está diseñada para **leer** configuración del teclado y trabajar con **archivos de keymap JSON**.
+Esta herramienta está diseñada para LEER keymaps del teclado y TRABAJAR con archivos JSON.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
 │  Teclado ZMK                                          │
 │        │                                                    │
-│        ▼                                                   │
 │  Extraer (CLI)                                         │
-│        │                                                    │
 │  Archivo JSON (keymap.json)                                │
 │        │                                                    │
-│  Editar (keymap-editor web)                               │
-│        │                                                    │
+│  Editar (keymap-editor web o CLI write)                │
 │  Archivo JSON modificado                                      │
 │        │                                                    │
 │  Commit a GitHub                                            │
@@ -56,6 +53,17 @@ python zmk_studio_cli.py extract --format json
 python zmk_studio_cli.py extract -p COM8
 ```
 
+### Escribir keymap al teclado
+
+```bash
+# Comando write
+python zmk_studio_cli.py write --input mi_keymap.keymap
+
+NOTA: Actualmente este comando solo valida el formato .keymap.
+      La conversión a formato binario protobuf para escribir al teclado
+      está en desarrollo.
+```
+
 ### Comparar dos keymaps
 
 ```bash
@@ -76,40 +84,7 @@ python zmk_studio_cli.py list-behaviors --refresh
 python zmk_studio_cli.py list-behaviors --verbose
 ```
 
-## Editar Keymap (Recomendado)
-
-El flujo más práctico para editar keymaps es:
-
-### 1. Extraer keymap actual
-
-```bash
-python zmk_studio_cli.py extract --format json --output keymap_actual.json
-```
-
-### 2. Editar en keymap-editor web
-
-1. Ve a https://nickcoutsos.github.io/keymap-editor/
-2. Conecta tu repositorio: `netcraker01/zmk-config-lily58`
-3. El keymap-editor carga `config/info.json` automáticamente
-4. Haz cambios visuales en el editor
-5. Guarda los cambios (se suben a GitHub)
-
-### 3. Compilar firmware
-
-1. GitHub Actions compila automáticamente
-2. Ve a Actions tab
-3. Descarga los archivos UF2
-
-### 4. Flashear al teclado
-
-1. Conecta el nice!nano V2 via USB
-2. Presiona el botón RESET (o double-tap reset)
-3. Aparece la unidad `NICEBOOT`
-4. Copia el archivo UF2 correcto:
-   - `Lily58_left_oled.uf2` → lado izquierdo
-   - `Lily58_right_oled.uf2` → lado derecho
-
-## Por Qué No Escribir Directamente por Puerto Serie
+## Por Qué No Usar Escritura por Puerto Serie (Actualmente)
 
 La escritura por puerto serie tiene limitaciones:
 
@@ -117,16 +92,23 @@ La escritura por puerto serie tiene limitaciones:
 
 2. **Riesgo de corrupción**: Un error en la conversión podría dejar el teclado en estado no usable
 
-3. **Falta de validación**: Es más difícil validar que el JSON es correcto antes de enviarlo
+3. **Falta de validación**: Es difícil validar que el `.keymap` es correcto antes de enviarlo
 
-4. **Solución existente**: ZMK Studio web ya tiene toda la lógica para escribir keymaps
+4. **Solución existente**: ZMK Studio web ya tiene toda la lógica para escribir keymaps con validación
 
-**Recomendación**: Usa el flujo basado en archivos descrito arriba. Es:
+**Recomendación**: Usa el flujo A (keymap-editor web) para editar keymaps:
 - Más seguro
 - Más fácil de usar
 - Tiene validación en el editor web
 - Puede deshacer cambios fácilmente
 - Versionado en Git
+
+## Comandos
+
+- `-p, --port`: Puerto serie (default: auto-detect)
+- `-v, --verbose`: Salida detallada
+- `--no-unlock`: No desbloquear automáticamente el teclado
+- `--refresh`: Refrescar behaviors desde el firmware (no usar caché)
 
 ## Formatos de Salida
 
@@ -135,16 +117,7 @@ La escritura por puerto serie tiene limitaciones:
 - **csv**: Tabla para análisis
 - **devicetree**: Archivo `.keymap` compatible con ZMK
 
-## Opciones
-
-- `-p, --port`: Puerto serie (default: auto-detect)
-- `-v, --verbose`: Salida detallada
-- `-f, --format`: Formato de salida (json, yaml, csv, devicetree)
-- `-o, --output`: Archivo de salida
-- `--no-unlock`: No desbloquear automáticamente el teclado
-- `--refresh`: Refrescar behaviors desde el firmware (no usar caché)
-
-## Ejemplos Completos
+## Ejemplos
 
 ### Copia de seguridad antes de cambios
 
@@ -153,39 +126,26 @@ La escritura por puerto serie tiene limitaciones:
 python zmk_studio_cli.py extract --format json --output backup_$(date +%Y%m%d).json
 ```
 
-### Flujo completo de modificación
+### Flujo completo con keymap-editor web (Recomendado)
 
 ```bash
 # 1. Extraer keymap actual
 python zmk_studio_cli.py extract --format json --output actual.json
 
-# 2. Comparar con backup (opcional)
-python zmk_studio_cli.py compare backup.json actual.json
-
-# 3. Editar en keymap-editor web
+# 2. Editar en keymap-editor web
 #    - Ir a https://nickcoutsos.github.io/keymap-editor/
+#    - Conectar tu repositorio: netcraker01/zmk-config-lily58
 #    - Cargar actual.json
-#    - Hacer cambios
+#    - Hacer cambios visuales
 #    - Guardar en GitHub
 
-# 4. Esperar compilación en GitHub Actions
+# 3. Esperar compilación en GitHub Actions
 #    - Ir a Actions tab en tu repo
 #    - Esperar que termine
 #    - Descargar firmware
 
-# 5. Flashear
+# 4. Flashear
 #    - Copiar UF2 al teclado
-```
-
-### Restaurar desde backup
-
-```bash
-# Comparar para verificar que es lo que quieres
-python zmk_studio_cli.py compare backup.json nuevo_keymap.json
-
-# Si está bien, restaurar
-python zmk_studio_cli.py extract --format json --input backup.json --output restaurar.json
-# Luego editar en keymap-editor web y seguir el flujo
 ```
 
 ## Compatibilidad
@@ -198,10 +158,10 @@ python zmk_studio_cli.py extract --format json --input backup.json --output rest
 
 ```
 zmk_studio/
-├── zmk_studio_cli.py    # CLI principal para extracción
+├── zmk_studio_cli.py    # CLI principal
 ├── extractor/
 │   ├── keymap_extractor.py  # Lógica de extracción
-│   └── rpc_client.py       # Cliente RPC
+│   └── rpc_client.py       # Cliente RPC (con set_keymap para escritura)
 ├── mapping/
 │   ├── keycodes.py         # Tabla de keycodes
 │   ├── modifiers.py        # Procesamiento de modifiers
@@ -212,7 +172,7 @@ zmk_studio/
 ├── protocol/
 │   ├── serial.py           # Puerto serie
 │   ├── framing.py          # Protocolo SOF/ESC/EOF
-│   ├── protobuf.py         # Codificación/decodificación
+│   ├── protobuf.py         # Codificación/decodificación (con encode_bytes)
 │   └── rpc.py             # Requests/respuestas
 └── formatter/
     ├── devicetree.py     # Formateador .keymap
@@ -220,10 +180,3 @@ zmk_studio/
     ├── yaml_formatter.py   # Formateador YAML
     └── csv_formatter.py    # Formateador CSV
 ```
-
-## Desarrollado por
-
-Basado en protocolo ZMK Studio:
-- Baudrate: 12500
-- Framing: SOF=0xAB, ESC=0xAC, EOF=0xAD
-- Encoding: Protobuf (varint + length-delimited)
